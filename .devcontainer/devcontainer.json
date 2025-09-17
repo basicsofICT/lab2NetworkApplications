@@ -1,7 +1,7 @@
 {
   "name": "Module 2 : Bonus Task System Exploitation Lab (10 Points)",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
-  "workspaceFolder": "/workspaces/system-exploitation-lab",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {},

@@ -19,7 +19,7 @@ Welcome to the Brute-Force & Hash-Cracking Lab! This exercise provides a secure,
 4. **Phishing Awareness**
 	- Recognize social engineering tactics and identify red flags in example emails.
 
-👉 By completing these tasks, you will gain insight into how attackers exploit weak credentials and user behavior—and learn strategies to defend against these threats.
+👉 By completing these tasks, you will gain insight into how attackers exploit weak credentials and user behavior and learn strategies to defend against these threats.
 
 ---
 ## Ethics & Legal Notes
