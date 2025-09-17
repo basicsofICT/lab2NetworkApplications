@@ -55,14 +55,18 @@ HASH="$(openssl passwd -6 -salt labsalt "${LAB_PASS}")"
 echo "${LAB_USER}:${HASH}" > hash.txt
 
 cat > phishing_email.txt <<'EOF'
-Subject: Account Deactivation Notice
+Subject: Urgent: Account Deactivation Notice
 
-Hi,
+Dear User,
 
-Your account is scheduled for deactivation. Click [here] to verify.
+We have detected unusual activity on your account. To avoid permanent deactivation, please verify your information immediately by clicking the link below:
 
-Regards,
-IT Support
+http://secure-update-account.com/verify
+
+Failure to act within 24 hours will result in loss of access to your account and all associated data.
+
+Best regards,
+IT Support Team
 EOF
 
 cat > LAB_START_HERE.txt <<'EOF'
@@ -81,10 +85,6 @@ Quick commands for the lab:
 3) Tcpdump (capture 20 packets; run curl in another terminal to generate noise)
    sudo tcpdump -i any -c 20
    curl https://example.com
-
-4) Browse harmless repo for malware techniques (theory only)
-   git clone https://github.com/0xInfection/Awesome-Windows-Exploitation.git
-   cd Awesome-Windows-Exploitation && less README.md
 EOF
 
 # Make sure ownership is correct for the vscode user
