@@ -1,41 +1,55 @@
-# System Exploitation – Bonus Task 2: Brute-Force & Hash-Cracking Lab (10 Points)
+# Bonus Task 2: Password Cracking, Brute-Force, Network Analysis & Phishing Awareness Lab (10 Points)
 
-Welcome to the Brute-Force & Hash-Cracking Lab! This exercise provides a secure, hands-on environment to learn and practice password hash cracking and SSH brute-forcing techniques. All activities take place within a single GitHub Codespace container, with essential tools pre-installed and a localhost-only SSH service running automatically.
+Welcome to the Password Cracking, Brute-Force, Network Analysis, and Phishing Awareness Lab! This hands-on lab provides a secure environment to:
+
+- Practice password hash analysis and cracking using John the Ripper
+- Perform SSH brute-force attacks with Hydra
+- Capture and analyze network traffic using tcpdump
+- Identify phishing techniques and red flags in suspicious emails
+
+All activities are performed inside a single GitHub Codespace container, with all required tools pre-installed and a localhost-only SSH service running automatically.
 
 > ⚠️ **For educational use only.** Never attempt these techniques on systems you do not own or lack explicit written permission to test.
 
 ## Objectives
 
-1. **Password Hash Analysis & Cracking**
-	- Understand how password hashes are stored.
-	- Use John the Ripper to recover weak passwords from hashes.
+By completing this lab, you will:
 
-2. **Online Password Guessing (Brute Force)**
-	- Perform a controlled SSH dictionary attack using Hydra.
+1. **Analyze and Crack Password Hashes**
+	- Explore how password hashes are stored and protected.
+	- Use John the Ripper to identify and recover weak passwords from hash files.
 
-3. **Network Observation**
-	- Capture and analyze live network traffic with tcpdump.
+2. **Perform SSH Brute-Force Attacks**
+	- Simulate a real-world dictionary attack on an SSH service using Hydra.
+	- Understand the risks and impact of weak credentials.
 
-4. **Phishing Awareness**
-	- Recognize social engineering tactics and identify red flags in example emails.
+3. **Observe and Analyze Network Traffic**
+	- Capture live network packets with tcpdump.
+	- Identify and interpret different types of network traffic, including authentication and web requests.
 
-👉 By completing these tasks, you will gain insight into how attackers exploit weak credentials and user behavior and learn strategies to defend against these threats.
+4. **Detect Phishing Techniques**
+	- Examine a sample phishing email for common red flags.
+	- Learn how to recognize and respond to social engineering attempts.
+
+> These objectives will help you understand how attackers exploit weak credentials and user behavior, and how to defend against these threats in real-world scenarios.
 
 ---
 ## Ethics & Legal Notes
 
-- **Test only the container provided by this lab.**
-- **Never** perform brute-force or scanning attacks on external or production systems.
-- All findings are strictly for educational purposes.
+
+- Only test and attack the container provided by this lab. Never target external or production systems.
+- All activities and findings are for educational purposes only. Do not use these techniques outside of approved environments.
 
 ---
 ## Getting Started
 
-1. **Open this repository in GitHub Codespaces.**
-3. Wait for the setup script to complete. The SSH daemon (localhost only) will start automatically and log to `/tmp/sshd.log`.
-4. To confirm services are running, use:
-	- `ps aux | grep sshd`
-	- `tail -n +1 /tmp/sshd.log`
+To begin the lab:
+
+1. Open this repository in GitHub Codespaces.
+3. Wait for the setup script to finish. The SSH daemon (localhost only) will start automatically and log to `/tmp/sshd.log`.
+4. Confirm services are running by executing:
+	- `ps aux | grep sshd` (check for the SSH process)
+	- `tail -n +1 /tmp/sshd.log` (view SSH log output)
 
 ---
 ## Key Lab Files
@@ -50,6 +64,7 @@ Welcome to the Brute-Force & Hash-Cracking Lab! This exercise provides a secure,
 
 - **SSH:** Running only on `127.0.0.1:22`
   - Username: `testuser`
+
 ## Lab Tasks (Total: 10 Points)
 
 Before you begin, make sure all scripts in the `scripts/` folder are executable. Run this command once during setup:
