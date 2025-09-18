@@ -158,3 +158,27 @@ In this task, you'll use `tcpdump` to monitor and record network activity on you
 
 ## Report Template
 Fill out `yourAnswers.md` as you complete each task.
+
+
+## Submitting Your Work
+
+
+**Important:** Before you close your Codespace, always commit and push your changes to avoid losing any work.
+
+After completing all tasks and filling out `yourAnswers.md`, follow these steps to commit and push your changes:
+
+1. Open the terminal in VS Code.
+2. Stage your changes:
+	```sh
+	git add .
+	```
+3. Commit your work with a descriptive message:
+	```sh
+	git commit -m "Complete lab tasks and answers"
+	```
+4. Push your changes to the repository:
+	```sh
+	git push
+	```
+5. Verify your changes are visible on GitHub.
+
