@@ -24,7 +24,7 @@ Fill in your answers for each section below. Include screenshots, explanations, 
 ## 2. SSH Brute-Force with Hydra (3 pts)
 
 **Screenshot:**
-- [Paste or attach your screenshot of Hydra output showing the discovered login/password]
+- [Attach your screenshot of Hydra output showing the discovered login/password]
 
 **Explanation:**
 - Briefly describe how online brute-force differs from offline hash cracking.
@@ -34,7 +34,7 @@ Fill in your answers for each section below. Include screenshots, explanations, 
 ## 3. Traffic Capture & Analysis (3 pts)
 
 **Screenshot:**
-- [Paste or attach your tcpdump output screenshot. Highlight key packet types (e.g., TCP handshake, DNS lookup, SSH, HTTP) with yellow.]
+- [Attach your tcpdump output screenshot. Highlight key packet types (e.g., TCP handshake, DNS lookup, SSH, HTTP) with yellow.]
 
 **Description:**
 - Choose one highlighted packet type (e.g., TCP handshake, DNS lookup, SSH, or HTTP) and describe what it represents in the network capture. For example, explain what a TCP handshake is and why it is important for establishing a connection.
