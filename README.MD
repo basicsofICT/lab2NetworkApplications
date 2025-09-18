@@ -7,7 +7,7 @@ Welcome to the Password Cracking, Brute-Force, Network Analysis, and Phishing Aw
 - Capture and analyze network traffic using tcpdump
 - Identify phishing techniques and red flags in suspicious emails
 
-All activities are performed inside a single GitHub Codespace container, with all required tools pre-installed and a localhost-only SSH service running automatically.
+All activities are performed inside a single GitHub Codespace container, with all required tools pre-installed and a localhost only SSH service running automatically.
 
 > ⚠️ **For educational use only.** Never attempt these techniques on systems you do not own or lack explicit written permission to test.
 
@@ -20,7 +20,7 @@ In this lab, you'll get hands-on experience with password hash analysis and crac
 ---
 ## Ethics & Legal Notes
 
-**Please remember**, you should only test and attack the container provided by this lab—never target external or production systems. Everything you do here is just for learning, so don't use these techniques outside of approved environments.
+**Please remember**, you should only test and attack the container provided by this lab. You should never target external or production systems. Everything you do here is just for learning, so don't use these techniques outside of approved environments.
 
 ---
 ## Getting Started
