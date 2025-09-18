@@ -13,32 +13,14 @@ All activities are performed inside a single GitHub Codespace container, with al
 
 ## Objectives
 
-By completing this lab, you will:
-
-1. **Analyze and Crack Password Hashes**
-	- Explore how password hashes are stored and protected.
-	- Use John the Ripper to identify and recover weak passwords from hash files.
-
-2. **Perform SSH Brute-Force Attacks**
-	- Simulate a real-world dictionary attack on an SSH service using Hydra.
-	- Understand the risks and impact of weak credentials.
-
-3. **Observe and Analyze Network Traffic**
-	- Capture live network packets with tcpdump.
-	- Identify and interpret different types of network traffic, including authentication and web requests.
-
-4. **Detect Phishing Techniques**
-	- Examine a sample phishing email for common red flags.
-	- Learn how to recognize and respond to social engineering attempts.
+In this lab, you'll get hands-on experience with password hash analysis and cracking, learn how SSH brute-force attacks work, observe and analyze network traffic, and practice spotting phishing attempts. 
 
 > These objectives will help you understand how attackers exploit weak credentials and user behavior, and how to defend against these threats in real-world scenarios.
 
 ---
 ## Ethics & Legal Notes
 
-
-- Only test and attack the container provided by this lab. Never target external or production systems.
-- All activities and findings are for educational purposes only. Do not use these techniques outside of approved environments.
+**Please remember**, you should only test and attack the container provided by this lab—never target external or production systems. Everything you do here is just for learning, so don't use these techniques outside of approved environments.
 
 ---
 ## Getting Started
@@ -176,29 +158,3 @@ In this task, you'll use `tcpdump` to monitor and record network activity on you
 
 ## Report Template
 Fill out `yourAnswers.md` as you complete each task.
-
----
-## Submitting Your Work
-
-
-**Important:** Before you close your Codespace, always commit and push your changes to avoid losing any work.
-
-After completing all tasks and filling out `yourAnswers.md`, follow these steps to commit and push your changes:
-
-1. Open the terminal in VS Code.
-2. Stage your changes:
-	```sh
-	git add .
-	```
-3. Commit your work with a descriptive message:
-	```sh
-	git commit -m "Complete lab tasks and answers"
-	```
-4. Push your changes to the repository:
-	```sh
-	git push
-	```
-5. Verify your changes are visible on GitHub.
-
-
-
