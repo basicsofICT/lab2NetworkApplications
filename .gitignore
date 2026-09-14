@@ -1,0 +1,5 @@
+apps/.sqli_admin_hash
+__pycache__/
+*.pyc
+/tmp/
+*.pcap

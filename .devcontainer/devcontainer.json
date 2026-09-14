@@ -1,5 +1,5 @@
 {
-  "name": "Module 2 : Bonus Task System Exploitation Lab (10 Points)",
+  "name": "Module 2 : Bonus Task System & Web Exploitation Lab (20 Points)",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
@@ -12,7 +12,7 @@
 
   "updateContentCommand": "sudo chmod +x .devcontainer/setup.sh && bash -lc .devcontainer/setup.sh",
 
-  "postStartCommand": "bash -lc 'sudo mkdir -p /run/sshd && sudo ssh-keygen -A >/dev/null 2>&1 || true && sudo /usr/sbin/sshd -D >/tmp/sshd.log 2>&1 & echo -e \"\\n✅ SSHD started (localhost only).\\nRun: hydra -L users.txt -P passwords.txt ssh://localhost\\n\"'",
+  "postStartCommand": "bash -lc 'chmod +x scripts/*.sh apps/*.sh 2>/dev/null; scripts/start_services.sh'",
 
   "customizations": {
     "vscode": {
@@ -36,6 +36,23 @@
     "22": {
       "label": "Local SSH (for lab use only)",
       "onAutoForward": "ignore"
+    },
+    "8080": {
+      "label": "DoS target app (Task 5)",
+      "onAutoForward": "ignore"
+    },
+    "5001": {
+      "label": "Session hijacking app (Task 6)",
+      "onAutoForward": "ignore"
+    },
+    "5002": {
+      "label": "SQL injection app (Task 8)",
+      "onAutoForward": "ignore"
+    },
+    "8000": {
+      "label": "Web recon site (Task 7)",
+      "onAutoForward": "ignore"
     }
   }
 }
+
