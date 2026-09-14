@@ -55,60 +55,7 @@ echo "🔐 Creating a SHA-512 test hash for John the Ripper..."
 HASH="$(openssl passwd -6 -salt labsalt "${LAB_PASS}")"
 echo "${LAB_USER}:${HASH}" > hash.txt
 
-cat > phishing_email.txt <<'EOF'
-Subject: Urgent: Account Deactivation Notice
-
-Dear User,
-
-We have detected unusual activity on your account. To avoid permanent deactivation, please verify your information immediately by clicking the link below:
-
-http://secure-update-account.com/verify
-
-Failure to act within 24 hours will result in loss of access to your account and all associated data.
-
-Best regards,
-IT Support Team
-EOF
-
-cat > LAB_START_HERE.txt <<'EOF'
-Quick commands for the lab:
-
-1) John the Ripper (hash cracking)
-   john hash.txt
-   john --show hash.txt   # show cracked creds (after success)
-
-   # Optional wordlist usage:
-   john --wordlist=passwords.txt hash.txt
-
-2) Hydra (dictionary attack against localhost only)
-   hydra -L users.txt -P passwords.txt ssh://localhost
-
-3) Tcpdump (capture 20 packets; run curl in another terminal to generate noise)
-   sudo tcpdump -i any -c 20
-   curl https://example.com
-
-4) Phishing email review
-   cat phishing_email.txt
-
-5) DoS flood test (Task 5)
-   ab -n 1000 -c 50 http://localhost:8080/
-   curl -s http://localhost:8080/stats -o dos_report.json
-
-6) Session hijacking (Task 6)
-   sudo timeout 20 tcpdump -i lo -A -s 0 'tcp port 5001' > session_capture.log 2>&1
-   curl -s -b "session=<stolen_token>" http://localhost:5001/account -o session_hijack_flag.txt
-
-7) Web recon (Task 7)
-   nikto -h http://localhost:8000
-   dirb http://localhost:8000/ scripts/web_wordlist.txt
-   curl http://localhost:8000/hidden-admin/flag.txt -o web_recon_flag.txt
-
-8) SQL injection (Task 8)
-   sqlmap -u "http://localhost:5002/user?id=1" --batch --dump
-   john --wordlist=scripts/sqli_wordlist.txt sqli_extracted_hash.txt
-EOF
-
-echo "🔐 Generating SQL injection lab admin password hash (Task 8)..."
+echo "🔐 Generating SQL injection lab admin password hash (Task 5)..."
 SQLI_PASSWORD="Dragon2024!"
 openssl passwd -6 -salt sqlisalt "${SQLI_PASSWORD}" > "${WORKDIR}/apps/.sqli_admin_hash"
 

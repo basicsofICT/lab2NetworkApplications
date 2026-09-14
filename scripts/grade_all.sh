@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs every auto-gradable task check and prints a total score summary.
+# Runs every task check and prints a total score summary (maximum 5).
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -14,16 +14,11 @@ run_check() {
   fi
 }
 
-run_check grade_task1_hash.sh 2
-run_check grade_task2_hydra.sh 3
-echo "SKIP Task3 (0/3): Traffic Capture & Analysis requires manual screenshot review"
-run_check grade_task4_phishing.sh 2
-run_check grade_task5_dos.sh 2
-run_check grade_task6_session.sh 3
-run_check grade_task7_webrecon.sh 2
-run_check grade_task8_sqli.sh 3
+run_check grade_task1_scan.sh 1
+run_check grade_task2_creds.sh 1
+run_check grade_task3_dos.sh 1
+run_check grade_task4_session.sh 1
+run_check grade_task5_web.sh 1
 
 echo "==================================================="
-echo "Auto-gradable score: ${TOTAL}/17"
-echo "Task 3 (3 pts) is graded manually from the submitted screenshot."
-echo "Total lab score (with Task 3 reviewed): ${TOTAL}/17 + up to 3 = up to 20"
+echo "Score: ${TOTAL}/5"

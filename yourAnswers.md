@@ -1,54 +1,53 @@
-# Lab 2 Bonus Task: Answers Template
+# Lab 2: Scanning, Exploitation, and Web Attacks Answers
 
-Fill in your answers for each section below. Include screenshots, explanations, and highlights as requested in the instructions.
+Complete every section. Embed screenshots from a `screenshots/` folder, for example:
 
----
-
-## 1. Hash Cracking with John the Ripper (2 pts)
-
-**Screenshot:**
-- Upload your screenshot to the `screenshots` folder in this repository.
-- Embed the image in your answer using Markdown, for example:
-	`![Cracked Credentials](screenshots/your_screenshot.png)`
-
-
-**Explanation:**
-- Briefly explain how the `$6$` (SHA-512 crypt) format works.
-
-
-
-
+`![Description](screenshots/task1.png)`
 
 ---
 
-## 2. SSH Brute-Force with Hydra (3 pts)
+## 1. Scanning and sniffing (1 pt)
 
-**Screenshot:**
-- [Attach your screenshot of Hydra output showing the discovered login/password]
+**tcpdump screenshot:** Highlight key packet types (TCP handshake, HTTP, and/or SSH).
 
-**Explanation:**
-- Briefly describe how online brute-force differs from offline hash cracking.
+**Description:** Choose one highlighted packet type. What does it represent, and why would a defender inspect it?
 
----
+**Scan file:** Confirm `nmap_scan.txt` is saved at the repository root.
 
-## 3. Traffic Capture & Analysis (3 pts)
+**Open ports:** List each open TCP port and the lab service that uses it.
 
-**Screenshot:**
-- [Attach your tcpdump output screenshot. Highlight key packet types (e.g., TCP handshake, DNS lookup, SSH, HTTP) with yellow.]
-
-**Description:**
-- Choose one highlighted packet type (e.g., TCP handshake, DNS lookup, SSH, or HTTP) and describe what it represents in the network capture. For example, explain what a TCP handshake is and why it is important for establishing a connection.
-
-
+**Explanation:** Why do ethical hackers scan and enumerate before attempting exploitation?
 
 ---
 
-## 4. Phishing Email Red-Flags (2 pts)
+## 2. Password cracking and SSH brute force (1 pt)
 
-**Red Flags Identified:**
-- List at least five red flags found in `phishing_email.txt`.
+**Screenshots:** John showing the cracked `username:password` line, and Hydra showing the valid login.
 
-**Verification Advice:**
-- Write a short paragraph explaining how a user should verify the legitimacy of suspicious emails.
+**Explanation:** What does the `$6$` prefix in `hash.txt` mean? How does the online Hydra attack differ from the offline crack?
 
 ---
+
+## 3. Denial-of-service simulation (1 pt)
+
+**Screenshot:** `ab` or tcpdump output.
+
+**Explanation:** How does this HTTP flood relate to SYN or ICMP floods, and why is a real DoS harder to stop?
+
+---
+
+## 4. Session hijacking via cookie replay (1 pt)
+
+**Flag file:** Confirm `session_hijack_flag.txt` is saved at the repository root.
+
+**Explanation:** How would HTTPS and short-lived session tokens prevent this attack?
+
+---
+
+## 5. Web reconnaissance and SQL injection (1 pt)
+
+**Screenshot:** Nikto or Dirb output showing the discovered directory.
+
+**Files:** Confirm `web_recon_flag.txt`, `sqli_extracted_hash.txt`, and `sqli_cracked_password.txt` are saved at the repository root.
+
+**Explanation:** Why is an unlinked directory still a security risk? Describe one countermeasure that would prevent this SQL injection.
