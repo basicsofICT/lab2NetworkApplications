@@ -1,24 +1,18 @@
 #!/usr/bin/env bash
-# Auto-grades Task 4: SSH dictionary attack with Hydra (2 pts)
+# Auto-grades Task 4 from the student's saved Hydra output (does not run hydra).
 set -uo pipefail
 POINTS=2
+FILE="hydra_ssh.txt"
 
-if [[ ! -f users.txt || ! -f passwords.txt ]]; then
-  echo "FAIL Task4 (0/${POINTS}): users.txt or passwords.txt not found"
+if [[ ! -f "${FILE}" ]]; then
+  echo "FAIL Task4 (0/${POINTS}): ${FILE} not found. Save Hydra's stdout to hydra_ssh.txt"
   exit 1
 fi
 
-if ! command -v hydra >/dev/null 2>&1; then
-  echo "FAIL Task4 (0/${POINTS}): hydra is not installed"
-  exit 1
-fi
-
-OUT=$(hydra -L users.txt -P passwords.txt ssh://localhost -t 4 2>/dev/null || true)
-
-if echo "${OUT}" | grep -q "login: testuser"; then
-  echo "PASS Task4 (${POINTS}/${POINTS}): SSH brute-force found valid credentials"
+if grep -q "login: testuser" "${FILE}" && grep -q "password: testpass" "${FILE}"; then
+  echo "PASS Task4 (${POINTS}/${POINTS}): Hydra output in ${FILE} shows valid SSH credentials"
   exit 0
-else
-  echo "FAIL Task4 (0/${POINTS}): brute-force did not confirm valid credentials"
-  exit 1
 fi
+
+echo "FAIL Task4 (0/${POINTS}): ${FILE} must contain Hydra's successful login and password lines"
+exit 1

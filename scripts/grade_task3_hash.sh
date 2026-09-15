@@ -1,20 +1,18 @@
 #!/usr/bin/env bash
-# Auto-grades Task 3: Hash cracking with John the Ripper (2 pts)
+# Auto-grades Task 3 from the student's saved john --show output (does not run john).
 set -uo pipefail
 POINTS=2
+FILE="cracked_hash.txt"
 
-if [[ ! -f hash.txt || ! -f passwords.txt ]]; then
-  echo "FAIL Task3 (0/${POINTS}): hash.txt or passwords.txt not found"
+if [[ ! -f "${FILE}" ]]; then
+  echo "FAIL Task3 (0/${POINTS}): ${FILE} not found. Save john --show output to cracked_hash.txt"
   exit 1
 fi
 
-john --wordlist=passwords.txt hash.txt >/dev/null 2>&1 || true
-RESULT=$(john --show hash.txt 2>/dev/null)
-
-if echo "${RESULT}" | grep -q "testuser:testpass"; then
-  echo "PASS Task3 (${POINTS}/${POINTS}): password hash cracked successfully"
+if grep -q "testuser:testpass" "${FILE}"; then
+  echo "PASS Task3 (${POINTS}/${POINTS}): cracked credentials found in ${FILE}"
   exit 0
-else
-  echo "FAIL Task3 (0/${POINTS}): could not verify cracked password"
-  exit 1
 fi
+
+echo "FAIL Task3 (0/${POINTS}): ${FILE} must contain the cracked username:password line from john --show"
+exit 1

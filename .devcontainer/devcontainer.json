@@ -32,6 +32,8 @@
 
   "remoteUser": "vscode",
 
+  "forwardPorts": [5001, 5002, 5003, 8000, 8080, 8081],
+
   "portsAttributes": {
     "22": {
       "label": "Local SSH (for lab use only)",
@@ -39,27 +41,33 @@
     },
     "8080": {
       "label": "DoS target app (Task 5)",
-      "onAutoForward": "ignore"
+      "onAutoForward": "notify",
+      "visibility": "private"
     },
     "8081": {
       "label": "Sniff target app (Task 2)",
-      "onAutoForward": "ignore"
+      "onAutoForward": "notify",
+      "visibility": "private"
     },
     "5001": {
       "label": "Session hijacking app (Task 6)",
-      "onAutoForward": "ignore"
+      "onAutoForward": "notify",
+      "visibility": "private"
     },
     "5002": {
       "label": "SQL injection app (Task 8)",
-      "onAutoForward": "ignore"
+      "onAutoForward": "notify",
+      "visibility": "private"
     },
     "5003": {
       "label": "Modern API token and IDOR (Tasks 10-11)",
-      "onAutoForward": "ignore"
+      "onAutoForward": "notify",
+      "visibility": "private"
     },
     "8000": {
       "label": "Web recon site (Task 7)",
-      "onAutoForward": "ignore"
+      "onAutoForward": "notify",
+      "visibility": "private"
     }
   }
 }

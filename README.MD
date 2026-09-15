@@ -49,24 +49,19 @@ After this lab you will be able to:
 ## Getting started
 
 1. Open this repository in GitHub Codespaces and wait for setup to finish.
-2. Confirm the lab services are running:
+2. Make the lab scripts executable:
 
 	```sh
-	ps aux | grep -E "sshd|dos_target|session_app|vuln_login_app|sniff_target|modern_api|http.server"
-	tail -n +1 /tmp/sshd.log /tmp/dos_target.log /tmp/session_app.log /tmp/vuln_login_app.log /tmp/sniff_target.log /tmp/modern_api.log /tmp/webrecon.log
+	chmod +x scripts/*.sh apps/*.sh
 	```
 
-3. If a service is missing (common after a stopped Codespace), restart them:
+3. Start all lab services:
 
 	```sh
 	bash scripts/start_services.sh
 	```
 
-4. If helper scripts are not executable:
-
-	```sh
-	chmod +x scripts/*.sh apps/*.sh
-	```
+	The script should report that every lab port is listening. After that, open the **Ports** tab in Codespaces (or VS Code) and use **Open in Browser** on 8000, 8080, 8081, 5001, 5002, or 5003 to view those pages. Keep those ports **private**; do not make them public.
 
 ---
 
@@ -104,14 +99,15 @@ bash scripts/grade_all.sh
 
 **Hints:**
 
-- Confirm lab services are running (`bash scripts/start_services.sh` if needed).
-- Run a **TCP connect** scan with **service/version** detection. The lab ports are all below 10000.
+- Run Nmap **in the GitHub Codespace terminal**. Port 22 alone usually means the scan was on your laptop, or lab apps were not started.
+- Start listeners and wait until the script says they are listening: `bash scripts/start_services.sh`
+- Use a **TCP connect** scan with **service/version** detection. Do not stop at port 1000; lab HTTP apps use ports above 1000 (all below 10000).
 - Save Nmap **normal** output (`-oN`) as `nmap_scan.txt` in the repository root.
 
-Example against another host (do not use this target):
+Example against another host (keep a wide port range when you adapt it):
 
 ```sh
-nmap -sT -sV -p 1-1000 10.0.0.5 -oN example_scan.txt
+nmap -sT -sV -p 1-10000 10.0.0.5 -oN example_scan.txt
 ```
 
 **Deliverables:**
@@ -138,7 +134,7 @@ A small HTTP service on port **8081** returns a confidential token in the respon
 
 1. In one terminal, capture loopback traffic for port 8081 in ASCII (`tcpdump -A`) and save it to a log you can search.
 2. In a second terminal, request `http://localhost:8081/` so packets appear in the capture.
-3. Extract the `FLAG{...}` value from the capture (not only from `curl` on screen) and save it as `sniff_flag.txt`.
+3. Extract the `FLAG{...}` value from the capture and save it as `sniff_flag.txt`. Keep the tcpdump log as `sniff_capture.log` (the grader checks both files).
 
 Example of an ASCII capture on another interface (adapt interface and port):
 
@@ -148,7 +144,7 @@ sudo tcpdump -i eth0 -A -s 0 -c 20 'tcp port 80'
 
 **Deliverables:**
 
-- `sniff_flag.txt` at the repository root (auto-graded).
+- `sniff_flag.txt` and `sniff_capture.log` at the repository root (auto-graded).
 - Screenshot of the capture showing the token in transit.
 - Two to three sentences in `yourAnswers.md` on why plaintext HTTP exposes secrets to anyone on the path.
 
@@ -165,17 +161,18 @@ Tool reference: [tcpdump](https://www.tcpdump.org/manpages/tcpdump.1.html)
 **Hints:**
 
 - Point John at `hash.txt` with `--wordlist`.
-- Display cracked credentials after the run.
+- Display cracked credentials after the run, and save that `john --show` output as `cracked_hash.txt`.
 
 Example against other files (adapt the names):
 
 ```sh
 john --wordlist=wordlist.txt hashes.txt
-john --show hashes.txt
+john --show hashes.txt > cracked.txt
 ```
 
 **Deliverables:**
 
+- `cracked_hash.txt` at the repository root (auto-graded; must contain the `username:password` line from `john --show`).
 - Screenshot of the cracked `username:password` line.
 - Two to three sentences in `yourAnswers.md` on what the `$6$` prefix means (SHA-512 crypt).
 
@@ -192,7 +189,7 @@ Tool reference: [John the Ripper](https://www.openwall.com/john/)
 **Hints:**
 
 - Use Hydra against **SSH on localhost**.
-- Look for a valid `login` and `password` in the output.
+- Redirect Hydra's output (stdout and stderr) to `hydra_ssh.txt` so the grader can see the successful `login` and `password` lines.
 
 Example against another host (do not use this target):
 
@@ -208,6 +205,7 @@ bash scripts/start_services.sh
 
 **Deliverables:**
 
+- `hydra_ssh.txt` at the repository root (auto-graded).
 - Screenshot of Hydra reporting the valid login.
 - Two to three sentences in `yourAnswers.md` comparing this *online* attack with the *offline* crack in Task 3 (rate limits, lockouts, network noise).
 
@@ -253,7 +251,7 @@ A background script logs in as `admin` about every 15 seconds over **plaintext H
 
 **Hints:**
 
-1. Capture loopback traffic on **port 5001** in ASCII (`tcpdump -A`) for about 20 seconds so at least one login appears. Save the capture to a log file you can search.
+1. Capture loopback traffic on **port 5001** in ASCII (`tcpdump -A`) for about 20 seconds so at least one login appears. Save the capture as `session_capture.log`.
 2. Find the session cookie in the HTTP headers (look for `Set-Cookie` / a `session=` value).
 3. Replay that cookie to `/account` **without logging in**. Save the response as `session_hijack_flag.txt` in the repository root.
 
@@ -267,7 +265,7 @@ If the response is `Access denied`, the cookie expired. Capture again and replay
 
 **Deliverables:**
 
-- `session_hijack_flag.txt` at the repository root (auto-graded).
+- `session_hijack_flag.txt` and `session_capture.log` at the repository root (auto-graded).
 - Two to three sentences in `yourAnswers.md` on how HTTPS and short-lived session tokens would prevent this attack.
 
 **Check:** `bash scripts/grade_task6_session.sh`
@@ -458,4 +456,4 @@ git commit -m "Complete lab tasks and answers"
 git push
 ```
 
-Confirm these files appear on GitHub: `yourAnswers.md`, screenshots, `nmap_scan.txt`, `sniff_flag.txt`, `dos_report.json`, `session_hijack_flag.txt`, `web_recon_flag.txt`, `sqli_extracted_hash.txt`, `sqli_cracked_password.txt`, `crypto_b64_flag.txt`, `crypto_md5.txt`, `bearer_flag.txt`, `idor_flag.txt`, `cloud_access_key.txt`, and `iam_risk.txt`.
+Confirm these files appear on GitHub: `yourAnswers.md`, screenshots, `nmap_scan.txt`, `sniff_capture.log`, `sniff_flag.txt`, `cracked_hash.txt`, `hydra_ssh.txt`, `dos_report.json`, `session_capture.log`, `session_hijack_flag.txt`, `web_recon_flag.txt`, `sqli_extracted_hash.txt`, `sqli_cracked_password.txt`, `crypto_b64_flag.txt`, `crypto_md5.txt`, `bearer_flag.txt`, `idor_flag.txt`, `cloud_access_key.txt`, and `iam_risk.txt`.

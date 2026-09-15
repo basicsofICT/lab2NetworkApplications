@@ -20,13 +20,15 @@ Complete every section. Embed screenshots from a `screenshots/` folder, for exam
 
 **Screenshot:** tcpdump output showing the confidential token in transit.
 
-**Flag file:** Confirm `sniff_flag.txt` is saved at the repository root.
+**Files:** Confirm `sniff_capture.log` and `sniff_flag.txt` are saved at the repository root.
 
 **Explanation:** Why does plaintext HTTP expose secrets to anyone who can observe the path?
 
 ---
 
 ## 3. Hash cracking with John the Ripper (2 pts)
+
+**Files:** Confirm `cracked_hash.txt` is saved at the repository root (`john --show` output).
 
 **Screenshot:** John showing the cracked `username:password` line.
 
@@ -35,6 +37,8 @@ Complete every section. Embed screenshots from a `screenshots/` folder, for exam
 ---
 
 ## 4. SSH dictionary attack with Hydra (2 pts)
+
+**Files:** Confirm `hydra_ssh.txt` is saved at the repository root (Hydra stdout).
 
 **Screenshot:** Hydra output showing the valid login and password.
 
@@ -52,7 +56,7 @@ Complete every section. Embed screenshots from a `screenshots/` folder, for exam
 
 ## 6. Session hijacking via cookie replay (3 pts)
 
-**Flag file:** Confirm `session_hijack_flag.txt` is saved at the repository root.
+**Files:** Confirm `session_capture.log` and `session_hijack_flag.txt` are saved at the repository root.
 
 **Explanation:** How would HTTPS and short-lived session tokens prevent this attack?
 

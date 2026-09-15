@@ -5,7 +5,14 @@ echo "🔧 Installing lab prerequisites..."
 sudo apt-get update -y
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
   john hydra tcpdump curl nmap git less openssh-server openssl \
-  apache2-utils dirb nikto sqlmap python3-flask
+  apache2-utils dirb nikto sqlmap python3-flask python3-pip
+
+# Install Flask into the Python that will run the lab apps (devcontainer Python
+# is often not the Debian python3 that python3-flask is packaged for).
+python3 -m pip install --upgrade pip >/dev/null 2>&1 || true
+python3 -m pip install flask || python3 -m pip install --user flask || \
+  python3 -m pip install --break-system-packages flask || true
+python3 -c "import flask" || echo "WARNING: Flask import failed for $(command -v python3)"
 
 echo "🔐 Configuring sshd for localhost-only, password auth..."
 sudo mkdir -p /etc/ssh/sshd_config.d
