@@ -6,7 +6,7 @@ FILE="dos_report.json"
 THRESHOLD=900
 
 if [[ ! -f "${FILE}" ]]; then
-  echo "FAIL Task5 (0/${POINTS}): ${FILE} not found. Run the flood test and save /stats output."
+  echo "FAIL Task5 (0/${POINTS}): dos_report.json not found. The flood does not create this file; save /stats yourself, e.g. curl -s http://localhost:8080/stats -o dos_report.json"
   exit 1
 fi
 

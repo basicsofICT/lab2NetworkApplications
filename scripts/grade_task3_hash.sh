@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Auto-grades Task 3 from the student's saved john --show output (does not run john).
+# Auto-grades Task 3 from the student's john --show output (does not run john).
 set -uo pipefail
 POINTS=2
 FILE="cracked_hash.txt"
@@ -9,7 +9,7 @@ if [[ ! -f "${FILE}" ]]; then
   exit 1
 fi
 
-if grep -q "testuser:testpass" "${FILE}"; then
+if grep -q "testuser:password" "${FILE}"; then
   echo "PASS Task3 (${POINTS}/${POINTS}): cracked credentials found in ${FILE}"
   exit 0
 fi

@@ -38,7 +38,7 @@ sudo mkdir -p /run/sshd
 
 # --- Create a dedicated local test account for the SSH brute-force demo ---
 LAB_USER="testuser"
-LAB_PASS="testpass"
+LAB_PASS="password"
 if ! id -u "${LAB_USER}" >/dev/null 2>&1; then
   echo "👤 Creating lab user '${LAB_USER}'..."
   sudo useradd -m -s /bin/bash "${LAB_USER}"
@@ -56,7 +56,7 @@ echo "📁 Working directory: ${WORKDIR}"
 
 echo "📝 Generating users.txt and passwords.txt..."
 printf "%s\n" "${LAB_USER}" > users.txt
-printf "%s\n" "${LAB_PASS}" "123456" "password" "letmein" > passwords.txt
+printf "%s\n" "${LAB_PASS}" "123456" "qwerty" "letmein" > passwords.txt
 
 echo "🔐 Creating a SHA-512 test hash for John the Ripper..."
 HASH="$(openssl passwd -6 -salt labsalt "${LAB_PASS}")"
