@@ -6,11 +6,7 @@ Complete every section. Embed screenshots from a `screenshots/` folder, for exam
 
 ---
 
-## 1. Scanning and sniffing (1 pt)
-
-**tcpdump screenshot:** Highlight key packet types (TCP handshake, HTTP, and/or SSH).
-
-**Description:** Choose one highlighted packet type. What does it represent, and why would a defender inspect it?
+## 1. Network scanning and enumeration (2 pts)
 
 **Scan file:** Confirm `nmap_scan.txt` is saved at the repository root.
 
@@ -20,23 +16,41 @@ Complete every section. Embed screenshots from a `screenshots/` folder, for exam
 
 ---
 
-## 2. Password cracking and SSH brute force (1 pt)
+## 2. Packet sniffing (2 pts)
 
-**Screenshots:** John showing the cracked `username:password` line, and Hydra showing the valid login.
+**Screenshot:** tcpdump output showing the confidential token in transit.
 
-**Explanation:** What does the `$6$` prefix in `hash.txt` mean? How does the online Hydra attack differ from the offline crack?
+**Flag file:** Confirm `sniff_flag.txt` is saved at the repository root.
+
+**Explanation:** Why does plaintext HTTP expose secrets to anyone who can observe the path?
 
 ---
 
-## 3. Denial-of-service simulation (1 pt)
+## 3. Hash cracking with John the Ripper (2 pts)
 
-**Screenshot:** `ab` or tcpdump output.
+**Screenshot:** John showing the cracked `username:password` line.
+
+**Explanation:** What does the `$6$` prefix in `hash.txt` mean?
+
+---
+
+## 4. SSH dictionary attack with Hydra (2 pts)
+
+**Screenshot:** Hydra output showing the valid login and password.
+
+**Explanation:** How does this online attack differ from the offline crack in Task 3?
+
+---
+
+## 5. Denial-of-service simulation (2 pts)
+
+**Screenshot:** `ab` output.
 
 **Explanation:** How does this HTTP flood relate to SYN or ICMP floods, and why is a real DoS harder to stop?
 
 ---
 
-## 4. Session hijacking via cookie replay (1 pt)
+## 6. Session hijacking via cookie replay (3 pts)
 
 **Flag file:** Confirm `session_hijack_flag.txt` is saved at the repository root.
 
@@ -44,10 +58,49 @@ Complete every section. Embed screenshots from a `screenshots/` folder, for exam
 
 ---
 
-## 5. Web reconnaissance and SQL injection (1 pt)
+## 7. Web server reconnaissance (2 pts)
 
 **Screenshot:** Nikto or Dirb output showing the discovered directory.
 
-**Files:** Confirm `web_recon_flag.txt`, `sqli_extracted_hash.txt`, and `sqli_cracked_password.txt` are saved at the repository root.
+**Explanation:** Why is an unlinked directory still a security risk?
 
-**Explanation:** Why is an unlinked directory still a security risk? Describe one countermeasure that would prevent this SQL injection.
+---
+
+## 8. SQL injection and credential cracking (3 pts)
+
+**Files:** Confirm `sqli_extracted_hash.txt` and `sqli_cracked_password.txt` are saved at the repository root.
+
+**Explanation:** Describe one countermeasure that would prevent this SQL injection.
+
+---
+
+## 9. Cryptography: encoding and hashing (2 pts)
+
+**Files:** Confirm `crypto_b64_flag.txt` and `crypto_md5.txt` are saved at the repository root.
+
+**Explanation:** Why is Base64 encoding, not encryption? Why is unsalted MD5 a weak password hash?
+
+---
+
+## 10. Stolen Bearer token replay (2 pts)
+
+**Flag file:** Confirm `bearer_flag.txt` is saved at the repository root.
+
+**Explanation:** Why is a leaked Bearer token as serious as a leaked password? Name one control that would reduce the impact.
+
+---
+
+## 11. API IDOR (2 pts)
+
+**Flag file:** Confirm `idor_flag.txt` is saved at the repository root.
+
+**Explanation:** Why must an API check authorization for each object id, not only that the client called an API?
+
+---
+
+## 12. Cloud IAM misconfiguration (1 pt)
+
+**Files:** Confirm `cloud_access_key.txt` and `iam_risk.txt` are saved at the repository root.
+
+**Explanation:** Why should cloud keys not live in git, and why is `Action: *` on `Resource: *` dangerous?
+

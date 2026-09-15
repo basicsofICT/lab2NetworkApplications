@@ -55,9 +55,13 @@ echo "🔐 Creating a SHA-512 test hash for John the Ripper..."
 HASH="$(openssl passwd -6 -salt labsalt "${LAB_PASS}")"
 echo "${LAB_USER}:${HASH}" > hash.txt
 
-echo "🔐 Generating SQL injection lab admin password hash (Task 5)..."
+echo "🔐 Generating SQL injection lab admin password hash (Task 8)..."
 SQLI_PASSWORD="Dragon2024!"
 openssl passwd -6 -salt sqlisalt "${SQLI_PASSWORD}" > "${WORKDIR}/apps/.sqli_admin_hash"
+
+echo "🔐 Creating cryptography challenge files (Task 9)..."
+echo -n 'FLAG{b64_d3c0de_ok}' | base64 > cipher_b64.txt
+echo -n 'letmein' | md5sum | awk '{print $1}' > md5_hash.txt
 
 echo "🚀 Making lab scripts executable..."
 chmod +x "${WORKDIR}"/scripts/*.sh "${WORKDIR}"/apps/*.sh 2>/dev/null || true

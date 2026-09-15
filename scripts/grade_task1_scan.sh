@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Auto-grades Task 1: Scanning and sniffing (1 pt)
-# Awards the point from nmap_scan.txt. The tcpdump screenshot is reviewed in yourAnswers.md.
+# Auto-grades Task 1: Network scanning and enumeration (2 pts)
 set -uo pipefail
-POINTS=1
+POINTS=2
 FILE="nmap_scan.txt"
 
 if [[ ! -f "${FILE}" ]]; then
@@ -10,7 +9,7 @@ if [[ ! -f "${FILE}" ]]; then
   exit 1
 fi
 
-REQUIRED_PORTS=(22 5001 5002 8000 8080)
+REQUIRED_PORTS=(22 5001 5002 5003 8000 8080 8081)
 MISSING=()
 for port in "${REQUIRED_PORTS[@]}"; do
   if grep -Eq "${port}/tcp[[:space:]]+open|${port}/open/tcp" "${FILE}"; then

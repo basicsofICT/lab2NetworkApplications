@@ -1,5 +1,5 @@
 {
-  "name": "Lab 2: Scanning, Exploitation, and Web Attacks (5 Points)",
+  "name": "Lab 2: Scanning, Exploitation, and Web Attacks (25 Points)",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
@@ -38,19 +38,27 @@
       "onAutoForward": "ignore"
     },
     "8080": {
-      "label": "DoS target app (Task 3)",
+      "label": "DoS target app (Task 5)",
+      "onAutoForward": "ignore"
+    },
+    "8081": {
+      "label": "Sniff target app (Task 2)",
       "onAutoForward": "ignore"
     },
     "5001": {
-      "label": "Session hijacking app (Task 4)",
+      "label": "Session hijacking app (Task 6)",
       "onAutoForward": "ignore"
     },
     "5002": {
-      "label": "SQL injection app (Task 5)",
+      "label": "SQL injection app (Task 8)",
+      "onAutoForward": "ignore"
+    },
+    "5003": {
+      "label": "Modern API token and IDOR (Tasks 10-11)",
       "onAutoForward": "ignore"
     },
     "8000": {
-      "label": "Web recon site (Task 5)",
+      "label": "Web recon site (Task 7)",
       "onAutoForward": "ignore"
     }
   }
