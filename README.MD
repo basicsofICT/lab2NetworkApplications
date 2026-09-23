@@ -402,7 +402,7 @@ Tool references: [Nikto](https://github.com/sullo/nikto), [Dirb](https://www.kal
 
 **Objective:** Abuse a vulnerable query to dump password hashes, then crack the admin password.
 
-**What is going on.** The app on **port 5002** builds SQL by **concatenating** the `id` query parameter into the statement. If `id` is not treated as data only, you can change the meaning of the query. A common technique is a **UNION SELECT**: you add extra rows from another table (here, `users`) so the JSON includes `admin` and `password_hash`.
+**What is going on.** The app on **port 5002** builds SQL by **concatenating** the `id` query parameter into the statement. If `id` is not treated as data only, you can change the meaning of the query. A common technique is a **UNION SELECT**: you add extra rows from another table (`users`) so the JSON includes `admin` and `password_hash`.
 
 That hash is the same *kind* of hash as Task 3. After you extract it, crack it offline with John and the provided list **`scripts/sqli_wordlist.txt`**.
 
