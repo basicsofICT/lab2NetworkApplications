@@ -98,16 +98,16 @@ If you do the bonus, write two to three sentences for each task. Where a screens
 
 ## 10. Stolen Bearer token replay (optional)
 
-**Explanation:** Why is a leaked Bearer token as serious as a leaked password? Name one control that would reduce the impact.
+**Explanation:** Why is a stolen Bearer token as serious as a stolen password today, and where must tokens not be stored (git, CI logs, chat)? Name one better control.
 
 ---
 
 ## 11. API IDOR (optional)
 
-**Explanation:** Why must an API check authorization for each object id, not only that the client called an API?
+**Explanation:** Why is hiding an id or shipping the API only in a mobile app not enough? What must the server check on every object?
 
 ---
 
 ## 12. Cloud IAM misconfiguration (optional)
 
-**Explanation:** Why should cloud keys not live in git, and why is `Action: *` on `Resource: *` dangerous?
+**Explanation:** What does least privilege mean in this IAM policy? Why is a key in git plus `Action: *` worse than either mistake alone?

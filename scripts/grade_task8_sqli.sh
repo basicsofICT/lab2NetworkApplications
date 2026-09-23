@@ -6,15 +6,25 @@ HASH_FILE="sqli_extracted_hash.txt"
 PASS_FILE="sqli_cracked_password.txt"
 EXPECTED_PASSWORD="Dragon2024!"
 
-if [[ ! -f "${HASH_FILE}" ]] || ! grep -q '\$6\$' "${HASH_FILE}"; then
-  echo "FAIL Task8 (0/${POINTS}): ${HASH_FILE} must contain the extracted SHA-512 crypt hash (\$6\$)"
+if [[ ! -f "${HASH_FILE}" ]]; then
+  echo "FAIL Task8 (0/${POINTS}): ${HASH_FILE} not found. Save the admin hash as admin:<hash>"
   exit 1
 fi
 
-if [[ -f "${PASS_FILE}" ]] && grep -qF "${EXPECTED_PASSWORD}" "${PASS_FILE}"; then
+if ! grep -q 'admin:' "${HASH_FILE}" || ! grep -q '\$6\$' "${HASH_FILE}"; then
+  echo "FAIL Task8 (0/${POINTS}): ${HASH_FILE} must be admin:<hash> and include a SHA-512 crypt hash (\$6\$)"
+  exit 1
+fi
+
+if [[ ! -f "${PASS_FILE}" ]]; then
+  echo "FAIL Task8 (0/${POINTS}): ${PASS_FILE} not found. Save the cracked password as admin:<password>"
+  exit 1
+fi
+
+if grep -q 'admin:' "${PASS_FILE}" && grep -qF "${EXPECTED_PASSWORD}" "${PASS_FILE}"; then
   echo "PASS Task8 (${POINTS}/${POINTS}): extracted hash and cracked SQLi password found"
   exit 0
 fi
 
-echo "FAIL Task8 (0/${POINTS}): expected cracked password not found in ${PASS_FILE}"
+echo "FAIL Task8 (0/${POINTS}): ${PASS_FILE} must be admin:<password> and contain the cracked password"
 exit 1

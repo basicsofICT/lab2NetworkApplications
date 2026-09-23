@@ -23,7 +23,7 @@ After this lab you will be able to:
 9. Decode Base64 and crack a raw MD5 hash.
 10. Replay a stolen Bearer access token against an API.
 11. Abuse an API IDOR (broken object-level authorization) flaw.
-12. Find leaked cloud credentials and an overpermissive IAM policy.
+12. Read a simple IAM policy, spot a wildcard that breaks least privilege, and find an access key committed in git.
 
 ---
 
@@ -402,53 +402,58 @@ Tool references: [Nikto](https://github.com/sullo/nikto), [Dirb](https://www.kal
 
 **Objective:** Abuse a vulnerable query to dump password hashes, then crack the admin password.
 
-**What is going on.** The app on **port 5002** builds SQL by **concatenating** the `id` query parameter into the statement. If `id` is not treated as data only, you can change the meaning of the query. A common technique is a **UNION SELECT**: you add extra rows from another table (`users`) so the JSON includes `admin` and `password_hash`.
+**What is going on.** This is how a common **SQL injection** attack works in practice.
 
-That hash is the same *kind* of hash as Task 3. After you extract it, crack it offline with John and the provided list **`scripts/sqli_wordlist.txt`**.
+A web app looks up one record, for example “show user 1.” The safe way is to send `1` to the database as **data**. The unsafe way (this lab) is to **glue** the `id` from the URL into the SQL string. The database then runs whatever SQL the URL produced.
 
-**`sqli_extracted_hash.txt` and `sqli_cracked_password.txt` are not created for you.** You must write them.
+Attackers start with a normal request so they can see what a real row looks like. On **port 5002** that URL is `/user?id=`. `id=1` should return JSON with **three** fields: `id`, `username`, and `password_hash` (one guest row). That tells the attacker the original query is a `SELECT` with three columns.
 
-**What you do.**
+They then change `id` from a number into extra SQL. A frequent technique is **UNION SELECT**: “run the original lookup, **and also** return rows from another query.” The extra query can read the whole `users` table, so `admin` and the stored `password_hash` appear in the same JSON. UNION only works if the extra `SELECT` has the **same number of columns** (here, three). `--` is an SQL comment: it tells the database to ignore the rest of the original `WHERE` clause so the injected SQL is valid.
 
-1. Request a normal row (`id=1`) and inspect the JSON field names.
-2. Inject a **UNION SELECT** (same number of columns) so extra rows from the `users` table appear, including `admin` and `password_hash`. Comment out the rest of the original query if needed.
-3. Save the admin hash as `sqli_extracted_hash.txt` in the form `admin:<hash>`.
-4. Crack it with John and **`scripts/sqli_wordlist.txt`**. Save `sqli_cracked_password.txt` as `admin:<password>`.
+The response still does **not** give the login password. It gives a hash (`$6$...`, SHA-512 crypt, same idea as Task 3). Attackers copy that hash offline and run a dictionary attack with John. In real incidents this is how a simple “lookup by id” page becomes a full credential dump: inject, extract hashes, crack weak passwords, then log in as that user.
 
-Do this with `curl` in the **Codespace terminal**. You may use sqlmap on the `id` parameter once you understand the injection point.
+**`sqli_extracted_hash.txt` and `sqli_cracked_password.txt` are not created for you.** You must write them. Crack the hash with John and **`scripts/sqli_wordlist.txt`**.
 
-Example against another app (adapt host, path, columns, table, and filenames):
+**What you do.** Use `curl` in the **Codespace terminal** (a browser tab that says Service not found does not mean the app is down).
+
+1. Request `id=1` and read the JSON. Confirm there are three fields. That is the attacker’s reconnaissance step.
+2. Inject a UNION that selects **three** columns from the `users` table so every user row (including `admin` and `password_hash`) appears. Do **not** put raw spaces in the URL: use `curl -G` with `--data-urlencode`, or replace each space with `%20`.
+3. Copy the admin hash (the `$6$...` value) into `sqli_extracted_hash.txt` as `admin:<hash>`. Use **single quotes** around that line so the shell does not eat `$`.
+4. Point John at that file with **`scripts/sqli_wordlist.txt`**. When it finishes, run `john --show` and save `sqli_cracked_password.txt` as `admin:<password>`.
+
+Example against another app (adapt host, path, column names, table, wordlist, and filenames; keep `-G --data-urlencode`, the three-column UNION, and `admin:` files):
 
 ```sh
 curl "http://10.0.0.8/item?id=1"
-# send a normal request and inspect the JSON fields
+# normal request: note how many JSON fields come back
 
-curl "http://10.0.0.8/item?id=0 UNION SELECT id,name,price FROM catalogue--"
-# inject a UNION so extra table rows appear in the response
+curl -G "http://10.0.0.8/item" --data-urlencode "id=0 UNION SELECT id,name,price FROM catalogue--"
+# UNION with the same column count; -G --data-urlencode encodes spaces (a quoted URL with spaces is rejected)
 
-echo "admin:<paste_password_hash_here>" > extracted.txt
-# write the stolen hash in username:hash form
+echo 'admin:$6$examplehash' > extracted.txt
+# save username:hash; single quotes so the shell does not eat $6$
 
-john --wordlist=wordlist.txt extracted.txt
+john --wordlist=scripts/wordlist.txt extracted.txt
 # crack the hash with a wordlist
 
 john --show extracted.txt
 # print the cracked username:password line
 
-echo "admin:<paste_password_here>" > cracked.txt
-# save the cracked password in username:password form
+echo "admin:ExamplePass1!" > cracked.txt
+# save username:password
 ```
 
-Optional sqlmap against another URL:
+Optional, after you understand the injection point:
 
 ```sh
 sqlmap -u "http://10.0.0.8/item?id=1" --batch --dump
-# automatically dump data from a URL with an injectable id parameter
+# dump data from a URL with an injectable id parameter
 ```
 
 **Deliverables:**
 
-- `sqli_extracted_hash.txt` and `sqli_cracked_password.txt` at the repository root, created by you.
+- `sqli_extracted_hash.txt` at the repository root: `admin:<hash>` (must include `$6$`).
+- `sqli_cracked_password.txt` at the repository root: `admin:<password>`.
 
 **Optional bonus:** Two to three sentences in `yourAnswers.md` describing one SQL injection defence (for example parameterized queries).
 
@@ -462,9 +467,13 @@ Tool reference: [sqlmap](https://sqlmap.org/)
 
 **Objective:** Decode a Base64 string and recover the plaintext of a raw MD5 hash.
 
-**What is going on.** **Encoding** (Base64) is a reversible way to write bytes as text. It is **not** encryption: anyone who sees the string can decode it with no key. **Hashing** (MD5) is one-way, but unsalted MD5 of a common password is easy to recover by hashing candidates until one matches, the same idea as Task 3.
+**What is going on.** Attackers often find “secret” strings that look protected but are not.
 
-Codespace setup writes two files in the repository root (they appear after setup finishes):
+**Encoding** (Base64) turns bytes into safe text so they can travel in email, JSON, or a config file. Anyone who sees the string can run `base64 -d` and get the original. There is no key. Developers still paste Base64 into apps as if it were encryption; attackers treat it as plaintext with an extra step.
+
+**Hashing** (MD5) is different: it is one-way. You cannot “decrypt” an MD5 digest. What attackers do instead is a **dictionary attack**, the same idea as Task 3: hash likely passwords until one digest matches the stolen value. Unsalted MD5 of a common word is fast to recover. That is why modern systems use a slow salted hash (SHA-512 crypt `$6$`, bcrypt, Argon2), not raw MD5.
+
+In this lab, setup leaves two leaked files in the repository root (they appear after setup finishes):
 
 - `cipher_b64.txt`: one Base64 line
 - `md5_hash.txt`: a raw MD5 digest of a word from `passwords.txt`
@@ -514,25 +523,37 @@ Tool reference: [openssl dgst](https://www.openssl.org/docs/man3.0/man1/openssl-
 
 **Objective:** Recover a live API access token and call a protected endpoint without a password.
 
-**What is going on.** Modern APIs often use **OAuth-style Bearer tokens** instead of session cookies. The client sends `Authorization: Bearer <token>`. If that token leaks (HTTP, CI logs, debug files), anyone can **replay** it, the same idea as Task 6 but with a header instead of a cookie.
+**What is going on.** This is the API version of Task 6 (cookie replay), and it is how many real API breaches start today.
 
-The API on **port 5003** issues tokens at `/oauth/token` over plaintext HTTP. A background job requests a token about every 15 seconds and appends the JSON to `/tmp/oauth_debug.log`. `/api/me` is protected.
+Mobile apps, single-page sites, and backends talk to APIs with **OAuth-style Bearer tokens** instead of a password on every request:
 
-**`bearer_flag.txt` is not created for you.** You must recover a token and save the `/api/me` response.
+`Authorization: Bearer <token>`
 
-**What you do.**
+Whoever holds that string **is** the user, until the token expires. Attackers do not need to crack OAuth. They **request or steal a token**, then **replay** it from their own laptop.
 
-1. Recover an `access_token` from `/tmp/oauth_debug.log` (or from an ASCII capture on port 5003).
-2. Send it as `Authorization: Bearer ...` to `/api/me` (no password). Save the response as `bearer_flag.txt`.
-3. If you get `invalid token`, the token expired; read the log again.
+That is a security issue when any of these are true (this lab has the first two):
 
-Do this with `curl` in the **Codespace terminal**.
+- `/oauth/token` (or a similar “give me a token” URL) has **no login**, no client secret, and no TLS. Anyone who can `curl` it gets a live `access_token`. That is an **unauthenticated token endpoint**.
+- The request is **plaintext HTTP**, so a sniffer, proxy, or public Wi-Fi path can copy the same JSON.
+- The token is **stored badly**: pasted into a chat, committed in `.env`, printed in GitHub Actions logs, left in a support ticket, or saved in frontend JavaScript. Search engines and leak sites index those.
 
-Example against another log and API (adapt the log path, token, URL, and filename):
+Once they have the token they call `/api/me` (or your bank/export API) with no password. Short-lived tokens, TLS, a real client secret, and **not** logging or committing tokens limit the damage. Store API keys and tokens in a **secrets vault** or the platform’s secret store (GitHub Actions secrets, AWS Secrets Manager), not in the repo and not in chat.
+
+In this lab, **port 5003** `/oauth/token` returns a token to anyone who asks. Copy `access_token` and replay it to `/api/me`. If you get `invalid token`, request a new one.
+
+**`bearer_flag.txt` is not created for you.** You must save the `/api/me` response.
+
+**What you do.** Use the **Codespace terminal** and `127.0.0.1` (not a laptop browser).
+
+1. Request a token from `/oauth/token` on **port 5003**. Read `access_token` in the JSON.
+2. Send that value as `Authorization: Bearer ...` to `/api/me` (no password). Save the response as `bearer_flag.txt`.
+3. If you get `invalid token`, request a new token and replay again.
+
+Example against another API (adapt host, paths, token, and filename):
 
 ```sh
-grep -o '"access_token": "[^"]*"' /tmp/example_oauth.log | tail -n 1
-# print the latest access_token line from a debug log
+curl -s http://10.0.0.8/oauth/token
+# request a token over plaintext HTTP; copy the access_token value
 
 curl -s -H "Authorization: Bearer 00deadbeef" http://10.0.0.8/api/profile -o response.txt
 # replay that token as a Bearer header and save the protected response
@@ -545,7 +566,7 @@ cat response.txt
 
 - `bearer_flag.txt` at the repository root, created by you.
 
-**Optional bonus:** Two to three sentences in `yourAnswers.md` on why leaking Bearer tokens is as serious as leaking a password, and one control (short expiry, TLS, or sender-constrained tokens).
+**Optional bonus:** Two to three sentences in `yourAnswers.md` on why a stolen Bearer token is as serious as a stolen password today, and where tokens must **not** be stored (git, CI logs, chat). Name one better control (vault, short expiry, TLS, or a required client secret).
 
 **Check:** `bash scripts/grade_task10_bearer.sh`
 
@@ -557,9 +578,15 @@ Tool reference: [RFC 6750 Bearer tokens](https://datatracker.ietf.org/doc/html/r
 
 **Objective:** Access another user’s record by changing an object id in the API URL.
 
-**What is going on.** **IDOR** (insecure direct object reference), also called **broken object-level authorization**, is OWASP API Top 10 issue A01. The API trusts an id in the URL (`/api/users/1`) without checking whether *you* are allowed to see that object. Changing the id can expose someone else’s data even if you never “hacked” authentication.
+**What is going on.** A lot of current API abuse needs **no malware and no stolen password**. The attacker only changes a number.
 
-The same API on **port 5003** exposes `/api/users/<id>` with **no** per-object check. Id `1` is a low-privilege record. Other numeric ids exist. Look in the `notes` field for a `FLAG{...}`.
+**IDOR** (insecure direct object reference), also called **broken object-level authorization** (BOLA), is still OWASP API Top 10 **A01**. Apps expose objects as `/api/users/1`, `/api/orders/1001`, `/v1/invoices/55`. Mobile apps and SPAs call these URLs all day. If the server checks only “this looks like an API call” (or even “they sent *a* token”) and not “is **this** caller allowed to see **this** id?”, then id `2` returns someone else’s record.
+
+That is how people scrape other customers’ bookings, school grades, or health notes: log in as a normal user (or use no auth at all), walk ids `1, 2, 3, …`, and keep the JSON that is not theirs. 
+
+Defence is **authorization on every object**, not hidden ids and not “the app is only in our mobile client.” Sequential ids are easy to guess; random UUIDs help a little but do not replace a permission check.
+
+The same API on **port 5003** exposes `/api/users/<id>` with **no** per-object check. Id `1` is the guest record you are meant to see. Other numeric ids exist. The confidential value is in another user’s `notes` field as `FLAG{...}`.
 
 **`idor_flag.txt` is not created for you.** You must fetch the other object and save the response.
 
@@ -588,7 +615,7 @@ cat other_record.txt
 
 - `idor_flag.txt` at the repository root, created by you.
 
-**Optional bonus:** Two to three sentences in `yourAnswers.md` on why APIs must authorize each object, not only that the client called an API.
+**Optional bonus:** Two to three sentences in `yourAnswers.md` on why hiding an id or shipping the API only in a mobile app is not enough, and what the server must check on every object.
 
 **Check:** `bash scripts/grade_task11_idor.sh`
 
@@ -598,38 +625,46 @@ Tool reference: [OWASP API Security: broken object-level authorization](https://
 
 ### 12. Cloud IAM misconfiguration (1 pt)
 
-**Objective:** Find cloud credentials that were committed by mistake, and name the IAM statement that grants every action on every resource.
+**Objective:** Read a small IAM policy, spot the rule that is too broad, and find the access key that was committed next to it.
 
-**What is going on.** Real incidents often start with **secrets in git** (access keys in `.env` files) and **overbroad IAM** (`Action: *` and `Resource: *`, sometimes called “break-glass” that never got tightened). Anyone with the repo can use the key; a wildcard policy lets that key do almost anything in the account.
+**What you learn.** **IAM** (identity and access management) answers three questions: *who* may do *which action* on *which resource*. **Least privilege** means the answer is as small as possible (for example “this app may only `s3:GetObject` on one bucket”). A wildcard `Action: *` on `Resource: *` means “this identity may do everything on everything.” If that identity’s access key is also sitting in git, one leak is a full cloud account, not a single file read.
 
-This is a **local simulation**. There is no real AWS or Azure account. The leaked backup is the **`cloud_lab/`** folder already in the repository (an env file and a policy JSON).
+**What is going on.** Current cloud incidents often start the same week a repo goes public: a **long-lived access key in git** plus an IAM policy that says “this key may do everything.”
+
+Teams still put `CLOUD_ACCESS_KEY_ID` and secrets in `deploy.env` or `.env` so CI and laptops can call AWS or Azure. One `git add .` publishes them. Bots scan GitHub in minutes. The key **is** the login; nobody needs to phish the console. The second failure is **wildcard IAM**: `Action: *` on `Resource: *` (a leftover “make it work” policy). That stolen key can then list buckets, create users, or run crypto-mining, not only the one API it was meant for.
+
+Today the usual advice is: **no long-lived keys in the repo**; use a vault or short-lived roles (for example OIDC from GitHub Actions to AWS). Turn on secret scanning. Give each key **least privilege** (only the actions and resources it needs), not `*`.
+
+The folder **`cloud_lab/`** is a local simulation (no real AWS or Azure). It has two files on purpose:
+
+- `deploy.env`: a long-lived access key (the kind bots scrape from public GitHub)
+- `iam_policy.json`: two statements. One is narrow (S3 read). One is “break-glass” (`Action` and `Resource` are `*`). You need to tell them apart.
 
 **`cloud_access_key.txt` and `iam_risk.txt` are not created for you.** You must write them.
 
 **What you do.**
 
-1. Inspect `cloud_lab/` (the env file and the policy JSON).
-2. Find the access key id and save **only that value** as `cloud_access_key.txt`.
-3. In `iam_risk.txt`, quote the policy `Action` that is a wildcard (`*`). Include the word `Action` and `*`.
-
-Example against another leaked folder (adapt paths and the value you found):
+1. Open `cloud_lab/deploy.env` and `cloud_lab/iam_policy.json`.
+2. Copy the `CLOUD_ACCESS_KEY_ID` value only into `cloud_access_key.txt`.
+3. In the policy, find the statement whose `Action` is `*`. Write that `Action` line into `iam_risk.txt` (it must include the word `Action` and `*`).
 
 ```sh
-grep ACCESS_KEY_ID example_lab/deploy.env
-# find the access key line in a committed env file
+grep CLOUD_ACCESS_KEY_ID cloud_lab/deploy.env
+# read the committed access key id
 
-echo "PASTE_KEY_HERE" > access_key.txt
-# save only the key id you found
+echo "PASTE_THE_KEY_ID_ONLY" > cloud_access_key.txt
+# save only the key id, not the whole line
 
-echo '"Action": "*"' > policy_risk.txt
-# record the wildcard Action from the IAM policy
+echo '"Action": "*"' > iam_risk.txt
+# quote the wildcard Action from the dangerous statement
 ```
 
 **Deliverables:**
 
-- `cloud_access_key.txt` and `iam_risk.txt` at the repository root, created by you.
+- `cloud_access_key.txt` at the repository root (the key id only).
+- `iam_risk.txt` at the repository root (the wildcard `Action`).
 
-**Optional bonus:** Two to three sentences in `yourAnswers.md` on why secrets belong in a vault (not git) and why `Action: *` on `Resource: *` is dangerous.
+**Optional bonus:** Two to three sentences in `yourAnswers.md`: what least privilege means here, and why a key in git plus `Action: *` is worse than either mistake alone.
 
 **Check:** `bash scripts/grade_task12_iam.sh`
 

@@ -37,9 +37,12 @@ def index():
 def issue_token():
     token = secrets.token_hex(16)
     tokens[token] = "admin"
-    return jsonify(
+    resp = jsonify(
         {"token_type": "Bearer", "access_token": token, "expires_in": 300}
     )
+    # Also on one header line so an ASCII capture can find it if JSON wraps.
+    resp.headers["X-Access-Token"] = token
+    return resp
 
 
 @app.route("/api/me")
