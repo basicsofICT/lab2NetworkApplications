@@ -20,6 +20,19 @@ USERS = {
 }
 
 
+@app.route("/")
+def index():
+    return (
+        "<h1>Modern API (Tasks 10 and 11)</h1>"
+        "<p>This service is running. Try "
+        "<a href='/oauth/token'>/oauth/token</a> or "
+        "<a href='/api/users/1'>/api/users/1</a>. "
+        "/api/me needs a Bearer token.</p>\n",
+        200,
+        {"Content-Type": "text/html; charset=utf-8"},
+    )
+
+
 @app.route("/oauth/token")
 def issue_token():
     token = secrets.token_hex(16)

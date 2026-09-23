@@ -16,6 +16,18 @@ valid_tokens = {}
 FLAG = "FLAG{s3ss10n_hijack_2026}"
 
 
+@app.route("/")
+def index():
+    return (
+        "<h1>Session app (Task 6)</h1>"
+        "<p>This service is running. Use "
+        "<a href='/login?user=guest'>/login?user=guest</a> or "
+        "<a href='/account'>/account</a>.</p>\n",
+        200,
+        {"Content-Type": "text/html; charset=utf-8"},
+    )
+
+
 @app.route("/login")
 def login():
     user = request.args.get("user", "guest")

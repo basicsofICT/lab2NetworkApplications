@@ -45,6 +45,17 @@ app = Flask(__name__)
 init_db()
 
 
+@app.route("/")
+def index():
+    return (
+        "<h1>SQL injection app (Task 8)</h1>"
+        "<p>This service is running. Try "
+        "<a href='/user?id=1'>/user?id=1</a>.</p>\n",
+        200,
+        {"Content-Type": "text/html; charset=utf-8"},
+    )
+
+
 @app.route("/user")
 def user_lookup():
     user_id = request.args.get("id", "1")

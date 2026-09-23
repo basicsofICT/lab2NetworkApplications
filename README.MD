@@ -1,4 +1,4 @@
-# Lab 2: Scanning, Exploitation, and Web Attacks (25 Points)
+# Lab 2: Scanning, Exploitation, and Web Attacks (25 Points + 3 optional bonus)
 
 This lab is a hands-on exercise in selected **CEH v13** techniques and current incident patterns: network scanning, packet sniffing, password cracking, online brute force, denial of service, session hijacking, web reconnaissance, SQL injection, cryptography, stolen API tokens, API object-level access control, and cloud IAM mistakes.
 
@@ -43,6 +43,7 @@ After this lab you will be able to:
 | 10 | Stolen Bearer token replay | 11 Session Hijacking; 14 Hacking Web Applications | 2 |
 | 11 | API IDOR (broken object-level authorization) | 14 Hacking Web Applications | 2 |
 | 12 | Leaked cloud credentials and wildcard IAM | 19 Cloud Computing | 1 |
+| Bonus | Optional screenshots and short write-up in `yourAnswers.md` |  | 3 |
 
 ---
 
@@ -53,15 +54,19 @@ After this lab you will be able to:
 
 	```sh
 	chmod +x scripts/*.sh apps/*.sh
+	# make the lab scripts executable
 	```
 
 3. Start all lab services:
 
 	```sh
 	bash scripts/start_services.sh
+	# start every local lab service
 	```
 
-	The script should report that every lab port is listening. After that, open the **Ports** tab in Codespaces (or VS Code) and use **Open in Browser** on 8000, 8080, 8081, 5001, 5002, or 5003 to view those pages. Keep those ports **private**; do not make them public.
+	The script should report that every lab port is listening. After that, open the **Ports** tab in Codespaces and use **Open in Browser** on 8000, 8080, 8081, 5001, 5002, or 5003. Keep those ports **private**; do not make them public.
+
+	If the browser shows **404: Service not found**, the app is still running. That page is the Codespace preview for `/`. Restart the services, then open the port again from the **Ports** tab (do not type `localhost:5001` in your laptop browser). Private preview URLs only work while you are signed in to GitHub. The lab tasks themselves use the **Codespace terminal** (`curl`, `tcpdump`), where `http://localhost:5001` works even if the preview tab does not.
 
 ---
 
@@ -81,10 +86,19 @@ After this lab you will be able to:
 
 ## Scoring
 
-Maximum score is **25**. Each task is scored from the files you create, plus written answers and screenshot links in `yourAnswers.md`. Check your score at any time:
+The twelve practical tasks are worth **25**, from the files named in each task. Check that score at any time:
 
 ```sh
 bash scripts/grade_all.sh
+# print your score for the twelve practical tasks
+```
+
+Screenshots and the two-to-three-sentence explanations in `yourAnswers.md` are **optional**. They are not required to earn the 25. If you complete that write-up (screenshots plus the short answers), you can earn a **3-point bonus** (28 in total).
+
+If you do the bonus, save images in the `screenshots/` folder and embed them in `yourAnswers.md`. Example:
+
+```md
+![tcpdump capture showing the token](screenshots/task2.png)
 ```
 
 **How to read the tasks.** Each task explains the idea, then what you do. Use the **deliverable filenames** given in each task. Worked commands are **examples against a different host**. Adapt the tool, flags, and target to this lab. Use `--help` or the linked man page if a flag is unclear.
@@ -111,13 +125,14 @@ Example against another host (keep a wide port range and `-oN` when you adapt it
 
 ```sh
 nmap -sT -sV -p 1-10000 10.0.0.5 -oN example_scan.txt
+# TCP connect scan with version detection; save normal output to a file
 ```
 
 **Deliverables:**
 
 - `nmap_scan.txt` at the repository root, created by you from Nmap. Every lab TCP port must appear as `open`.
-- Short port-to-service list in `yourAnswers.md`.
-- Two to three sentences on why ethical hackers scan before exploitation.
+
+**Optional bonus:** In `yourAnswers.md`, list each open port and the lab service, and write two to three sentences on why ethical hackers scan before exploitation.
 
 **Check:** `bash scripts/grade_task1_scan.sh`
 
@@ -133,25 +148,33 @@ Tool reference: [Nmap](https://nmap.org/book/man.html)
 
 This lab has a small HTTP service on **port 8081**. A normal request returns a confidential `FLAG{...}` in the body. You capture that traffic on the **loopback** interface (`lo`) only. Do not send test traffic to external websites.
 
-**`sniff_capture.log` and `sniff_flag.txt` are not created for you.** tcpdump prints packets (or writes a file you name). You must save an ASCII capture and extract the flag.
+**`sniff_capture.log` and `sniff_flag.txt` are not created for you.** tcpdump prints packets to the terminal, often on **stderr**. A redirect of stdout only can leave an empty log. Stop the capture after a few seconds so you get a finished file.
 
 **What you do.**
 
-1. In one terminal, capture loopback traffic for port 8081 in ASCII (`tcpdump -A`) and write it to `sniff_capture.log`.
+1. In one terminal, capture loopback traffic for port 8081 in ASCII (`tcpdump -A`) for a few seconds and write **stdout and stderr** to `sniff_capture.log`.
 2. In a second terminal, request `http://localhost:8081/` so packets appear in the capture.
-3. Copy the `FLAG{...}` value out of the capture into `sniff_flag.txt`. You need **both** files.
+3. Search the capture for `FLAG{...}` (for example with `grep`) and **redirect** the match into `sniff_flag.txt`. You need **both** files.
 
-Example of an ASCII capture on another interface (adapt interface and port, and save the output to a log file):
+Example of a timed ASCII capture on another interface (adapt interface, port, and filename; note `timeout` and `2>&1`):
 
 ```sh
-sudo tcpdump -i eth0 -A -s 0 -c 20 'tcp port 80' > example.log
+sudo timeout 10 tcpdump -i eth0 -A -s 0 'tcp port 80' > example.log 2>&1
+# timed ASCII capture; save stdout and stderr to a log
+```
+
+Example of searching another log for a flag and saving only the first match:
+
+```sh
+grep -o 'FLAG{[^}]*}' example.log | head -n 1 > found_flag.txt
+# extract the first FLAG{...} match and write it to a file
 ```
 
 **Deliverables:**
 
 - `sniff_capture.log` and `sniff_flag.txt` at the repository root, created by you.
-- Screenshot of the capture showing the token in transit.
-- Two to three sentences in `yourAnswers.md` on why plaintext HTTP exposes secrets to anyone on the path.
+
+**Optional bonus:** Screenshot of the capture in `screenshots/`, embedded in `yourAnswers.md`, plus two to three sentences on why plaintext HTTP exposes secrets.
 
 **Check:** `bash scripts/grade_task2_sniff.sh`
 
@@ -177,14 +200,17 @@ Example against other files (adapt the names):
 
 ```sh
 john --wordlist=wordlist.txt hashes.txt
+# try each wordlist password against the hash
+
 john --show hashes.txt > cracked.txt
+# print cracked username:password lines and save them
 ```
 
 **Deliverables:**
 
 - `cracked_hash.txt` at the repository root, created by you from `john --show`. It must contain the `username:password` line.
-- Screenshot of the cracked `username:password` line.
-- Two to three sentences in `yourAnswers.md` on what the `$6$` prefix means (SHA-512 crypt) and why a short wordlist still works against weak passwords.
+
+**Optional bonus:** Screenshot of the cracked `username:password` line in `screenshots/`, embedded in `yourAnswers.md`, plus two to three sentences on what `$6$` means and why a short wordlist still works against weak passwords.
 
 **Check:** `bash scripts/grade_task3_hash.sh`
 
@@ -210,19 +236,21 @@ Example against another host (adapt the target; note how the output is saved):
 
 ```sh
 hydra -L users.txt -P passwords.txt ssh://10.0.0.8 2>&1 | tee hydra_out.txt
+# try username and password lists against SSH; save the terminal output
 ```
 
 If you see `connection refused`, SSH is not running. Start it with `sudo service ssh start`, or restart every lab service:
 
 ```sh
 bash scripts/start_services.sh
+# start every local lab service, including SSH
 ```
 
 **Deliverables:**
 
 - `hydra_ssh.txt` at the repository root, created by you from Hydra’s output.
-- Screenshot of Hydra reporting the valid login.
-- Two to three sentences in `yourAnswers.md` comparing this *online* attack with the *offline* crack in Task 3 (network traffic, logs, lockouts, and speed).
+
+**Optional bonus:** Screenshot of Hydra reporting the valid login, embedded in `yourAnswers.md`, plus two to three sentences comparing this *online* attack with the *offline* crack in Task 3.
 
 **Check:** `bash scripts/grade_task4_hydra.sh`
 
@@ -248,24 +276,31 @@ ApacheBench (`ab`) is a load-testing tool. Attackers use similar “many request
 2. Use `ab` to send on the order of **1000** requests with many concurrent connections to `http://localhost:8080/` (a high count, not a few manual `curl`s).
 3. Fetch `/stats` and save the JSON as `dos_report.json` in the repository root.
 
-Example against another URL (adapt host, count, and concurrency; note saving output):
+Example against another URL (reset first, then flood, then save `/stats`; adapt host, count, and concurrency):
 
 ```sh
+curl -s http://10.0.0.8/reset
+# reset the request counter so old traffic is not counted
+
 ab -n 500 -c 10 http://10.0.0.8/
+# send a large number of concurrent HTTP requests
+
 curl -s http://10.0.0.8/stats -o stats.json
+# fetch the stats JSON and save it to a file
 ```
 
 If the app does not respond, start lab services:
 
 ```sh
 bash scripts/start_services.sh
+# start every local lab service
 ```
 
 **Deliverables:**
 
 - `dos_report.json` at the repository root, created by you from `/stats`.
-- Screenshot of your `ab` output.
-- Two to three sentences in `yourAnswers.md` relating this HTTP flood to SYN or ICMP floods, and one reason a real DoS is harder to stop.
+
+**Optional bonus:** Screenshot of your `ab` output, embedded in `yourAnswers.md`, plus two to three sentences relating this HTTP flood to SYN or ICMP floods.
 
 **Check:** `bash scripts/grade_task5_dos.sh`
 
@@ -279,20 +314,30 @@ Tool reference: [ApacheBench (ab)](https://httpd.apache.org/docs/2.4/programs/ab
 
 **What is going on.** After login, many web apps send a **session cookie** (`Set-Cookie`) so the browser can prove who it is on later requests. If that cookie travels over **plaintext HTTP**, a sniffer can copy it. **Replaying** the cookie (sending it on your own request) is application-level session hijacking: the server treats you as that user because it only checks the cookie, not a password.
 
-In this lab a background job logs in as `admin` about every 15 seconds on **port 5001**. `/login` issues the cookie; `/account` is protected. Capture long enough to see one login.
+In this lab a background job logs in as `admin` about every 15 seconds on **port 5001**. `/login` issues the cookie; `/account` is protected. Capture long enough to see one login. Do this in the **Codespace terminal** (`curl` and `tcpdump`). A Codespace browser tab that says Service not found does not mean the app is down.
 
-**`session_capture.log` and `session_hijack_flag.txt` are not created for you.** You must save the tcpdump output and the replay response.
+**`session_capture.log` and `session_hijack_flag.txt` are not created for you.** You must save the tcpdump output (stdout and stderr) and the replay response.
 
 **What you do.**
 
-1. Capture loopback traffic on port 5001 in ASCII (`tcpdump -A`) for about 20 seconds. Save it as `session_capture.log`.
-2. Find `Set-Cookie` / `session=` in the capture.
-3. Replay that cookie to `/account` **without logging in**. Save the response as `session_hijack_flag.txt`.
+1. Capture loopback traffic on port 5001 in ASCII (`tcpdump -A`) for about 20 seconds. Use interface **`lo`** (the example below uses `eth0`; change it). Save **stdout and stderr** as `session_capture.log`.
+2. Search the capture for the `session=` cookie value.
+3. Replay that cookie to `/account` **without logging in**. Paste the stolen value into `curl -b` and save the response as `session_hijack_flag.txt`.
 
-Example of sending a cookie to another site (adapt URL, cookie name, and value):
+Example against another interface (in this lab change `eth0` to **`lo`**; also adapt port, cookie, and filenames):
 
 ```sh
+sudo timeout 20 tcpdump -i eth0 -A -s 0 'tcp port 80' > example.log 2>&1
+# capture ASCII HTTP for about 20 seconds; save stdout and stderr to a log
+
+grep -o 'session=[a-f0-9]*' example.log | head -n 1
+# print the first session= cookie value from that capture
+
 curl -s -b "session=00deadbeef" http://10.0.0.8/profile -o response.txt
+# replay the cookie to a protected page without logging in, and save the response
+
+cat response.txt
+# show the saved response
 ```
 
 If the response is `Access denied`, the cookie expired. Capture again and replay a fresh value.
@@ -300,7 +345,8 @@ If the response is `Access denied`, the cookie expired. Capture again and replay
 **Deliverables:**
 
 - `session_capture.log` and `session_hijack_flag.txt` at the repository root, created by you.
-- Two to three sentences in `yourAnswers.md` on how HTTPS and short-lived session tokens would prevent this attack.
+
+**Optional bonus:** Two to three sentences in `yourAnswers.md` on how HTTPS and short-lived session tokens would prevent this attack.
 
 **Check:** `bash scripts/grade_task6_session.sh`
 
@@ -318,20 +364,33 @@ The lab site is `http://localhost:8000`. The hidden path is **not** in the homep
 
 **`web_recon_flag.txt` is not created for you.** You must discover the directory and save the flag file’s contents.
 
-**What you do.** Run a web-server check (Nikto) against the local site. Brute-force directories with Dirb and `scripts/web_wordlist.txt`. When you find a directory that is not the site root, retrieve the flag file inside it and save it as `web_recon_flag.txt`.
+**What you do.**
 
-Example against another site (adapt the URL and wordlist):
+1. Run a web-server check (Nikto) against `http://localhost:8000`.
+2. Brute-force directories with Dirb and **`scripts/web_wordlist.txt`**.
+3. When you find a directory that is not the site root, fetch the flag file inside it and save the body as `web_recon_flag.txt`.
+
+Example against another site (adapt the URL, wordlist, and hidden path):
 
 ```sh
 nikto -h http://10.0.0.8
+# check the web server for common misconfigurations
+
 dirb http://10.0.0.8/ wordlist.txt
+# brute-force directory names from a wordlist
+
+curl -s http://10.0.0.8/secret-dir/flag.txt -o found_flag.txt
+# download the flag file from the directory you discovered
+
+cat found_flag.txt
+# show the saved flag
 ```
 
 **Deliverables:**
 
 - `web_recon_flag.txt` at the repository root, created by you.
-- Screenshot of Nikto or Dirb output showing the discovered directory.
-- Two to three sentences in `yourAnswers.md` explaining why an unlinked directory is still a risk.
+
+**Optional bonus:** Screenshot of Nikto or Dirb output showing the discovered directory, embedded in `yourAnswers.md`, plus two to three sentences on why an unlinked directory is still a risk.
 
 **Check:** `bash scripts/grade_task7_webrecon.sh`
 
@@ -349,24 +408,49 @@ That hash is the same *kind* of hash as Task 3. After you extract it, crack it o
 
 **`sqli_extracted_hash.txt` and `sqli_cracked_password.txt` are not created for you.** You must write them.
 
-**What you do.** Start with a normal request (`id=1`) and inspect the JSON fields. Then inject a UNION (or use sqlmap on the `id` parameter once you understand the injection point) so every user row appears. Save the admin hash as `sqli_extracted_hash.txt` in the form `admin:<hash>`. Crack it with John and `scripts/sqli_wordlist.txt`, then save `sqli_cracked_password.txt` as `admin:<password>`.
+**What you do.**
 
-Example UNION against another app (adapt columns and URL to what this lab returns):
+1. Request a normal row (`id=1`) and inspect the JSON field names.
+2. Inject a **UNION SELECT** (same number of columns) so extra rows from the `users` table appear, including `admin` and `password_hash`. Comment out the rest of the original query if needed.
+3. Save the admin hash as `sqli_extracted_hash.txt` in the form `admin:<hash>`.
+4. Crack it with John and **`scripts/sqli_wordlist.txt`**. Save `sqli_cracked_password.txt` as `admin:<password>`.
+
+Do this with `curl` in the **Codespace terminal**. You may use sqlmap on the `id` parameter once you understand the injection point.
+
+Example against another app (adapt host, path, columns, table, and filenames):
 
 ```sh
+curl "http://10.0.0.8/item?id=1"
+# send a normal request and inspect the JSON fields
+
 curl "http://10.0.0.8/item?id=0 UNION SELECT id,name,price FROM catalogue--"
+# inject a UNION so extra table rows appear in the response
+
+echo "admin:<paste_password_hash_here>" > extracted.txt
+# write the stolen hash in username:hash form
+
+john --wordlist=wordlist.txt extracted.txt
+# crack the hash with a wordlist
+
+john --show extracted.txt
+# print the cracked username:password line
+
+echo "admin:<paste_password_here>" > cracked.txt
+# save the cracked password in username:password form
 ```
 
-Example sqlmap against another URL:
+Optional sqlmap against another URL:
 
 ```sh
 sqlmap -u "http://10.0.0.8/item?id=1" --batch --dump
+# automatically dump data from a URL with an injectable id parameter
 ```
 
 **Deliverables:**
 
 - `sqli_extracted_hash.txt` and `sqli_cracked_password.txt` at the repository root, created by you.
-- Two to three sentences in `yourAnswers.md` describing one SQL injection defence (for example parameterized queries).
+
+**Optional bonus:** Two to three sentences in `yourAnswers.md` describing one SQL injection defence (for example parameterized queries).
 
 **Check:** `bash scripts/grade_task8_sqli.sh`
 
@@ -387,19 +471,38 @@ Codespace setup writes two files in the repository root (they appear after setup
 
 **`crypto_b64_flag.txt` and `crypto_md5.txt` are not created for you.** You must write the decoded flag and the cracked MD5 word.
 
-**What you do.** Decode the Base64 file and save the plaintext flag as `crypto_b64_flag.txt`. For the MD5 digest, hash each candidate in `passwords.txt` (for example with `openssl dgst -md5`) until one matches `md5_hash.txt`. Save that word only as `crypto_md5.txt`. Both parts are required for the 2 points.
+**What you do.**
+
+1. Decode `cipher_b64.txt` and save the plaintext as `crypto_b64_flag.txt`.
+2. For each word in `passwords.txt`, compute its raw MD5 digest and compare it with `md5_hash.txt`.
+3. Save the matching word only as `crypto_md5.txt`. Both parts are required for the 2 points.
 
 Example against other files (adapt names):
 
 ```sh
 base64 -d encoded.txt > decoded.txt
-echo -n "secret" | openssl dgst -md5
+# decode a Base64 string and save the plaintext
+
+cat decoded.txt
+# show the decoded text
+
+while read -r w; do
+  h=$(echo -n "$w" | md5sum | awk '{print $1}')
+  if grep -qx "$h" hash.txt; then echo "$w"; fi
+done < words.txt > found.txt
+# hash each candidate; write the word whose digest matches hash.txt
+
+cat found.txt
+# show the recovered word
 ```
+
+You can also check one candidate with `echo -n "secret" | openssl dgst -md5`.
 
 **Deliverables:**
 
 - `crypto_b64_flag.txt` and `crypto_md5.txt` at the repository root, created by you.
-- Two to three sentences in `yourAnswers.md` on why Base64 is encoding, not encryption, and why unsalted MD5 is a weak password hash.
+
+**Optional bonus:** Two to three sentences in `yourAnswers.md` on why Base64 is encoding, not encryption, and why unsalted MD5 is a weak password hash.
 
 **Check:** `bash scripts/grade_task9_crypto.sh`
 
@@ -417,18 +520,32 @@ The API on **port 5003** issues tokens at `/oauth/token` over plaintext HTTP. A 
 
 **`bearer_flag.txt` is not created for you.** You must recover a token and save the `/api/me` response.
 
-**What you do.** Recover an `access_token` from `/tmp/oauth_debug.log` or from an ASCII capture on port 5003. Send it as a Bearer header to `/api/me` (no password). Save the response as `bearer_flag.txt`. If you get `invalid token`, the token expired; read the log again.
+**What you do.**
 
-Example of sending a Bearer token to another API (adapt URL and token):
+1. Recover an `access_token` from `/tmp/oauth_debug.log` (or from an ASCII capture on port 5003).
+2. Send it as `Authorization: Bearer ...` to `/api/me` (no password). Save the response as `bearer_flag.txt`.
+3. If you get `invalid token`, the token expired; read the log again.
+
+Do this with `curl` in the **Codespace terminal**.
+
+Example against another log and API (adapt the log path, token, URL, and filename):
 
 ```sh
+grep -o '"access_token": "[^"]*"' /tmp/example_oauth.log | tail -n 1
+# print the latest access_token line from a debug log
+
 curl -s -H "Authorization: Bearer 00deadbeef" http://10.0.0.8/api/profile -o response.txt
+# replay that token as a Bearer header and save the protected response
+
+cat response.txt
+# show the saved response
 ```
 
 **Deliverables:**
 
 - `bearer_flag.txt` at the repository root, created by you.
-- Two to three sentences in `yourAnswers.md` on why leaking Bearer tokens is as serious as leaking a password, and one control (short expiry, TLS, or sender-constrained tokens).
+
+**Optional bonus:** Two to three sentences in `yourAnswers.md` on why leaking Bearer tokens is as serious as leaking a password, and one control (short expiry, TLS, or sender-constrained tokens).
 
 **Check:** `bash scripts/grade_task10_bearer.sh`
 
@@ -446,19 +563,32 @@ The same API on **port 5003** exposes `/api/users/<id>` with **no** per-object c
 
 **`idor_flag.txt` is not created for you.** You must fetch the other object and save the response.
 
-**What you do.** Request the guest record first, then change only the object id. Save the response that contains the flag as `idor_flag.txt`.
+**What you do.**
 
-Example against another API (adapt host and id):
+1. Request the guest record (`/api/users/1`) and inspect the JSON.
+2. Change only the numeric id and request another user. Look for `FLAG{...}` in the `notes` field.
+3. Save the response that contains the flag as `idor_flag.txt`.
+
+Do this with `curl` in the **Codespace terminal**.
+
+Example against another API (adapt host, path, and ids):
 
 ```sh
 curl -s http://10.0.0.8/api/orders/1001
-curl -s http://10.0.0.8/api/orders/1002
+# request the object you are expected to see
+
+curl -s http://10.0.0.8/api/orders/1002 -o other_record.txt
+# change only the object id, fetch another record, and save it
+
+cat other_record.txt
+# show the saved record
 ```
 
 **Deliverables:**
 
 - `idor_flag.txt` at the repository root, created by you.
-- Two to three sentences in `yourAnswers.md` on why APIs must authorize each object, not only “the client called an API.”
+
+**Optional bonus:** Two to three sentences in `yourAnswers.md` on why APIs must authorize each object, not only that the client called an API.
 
 **Check:** `bash scripts/grade_task11_idor.sh`
 
@@ -476,12 +606,30 @@ This is a **local simulation**. There is no real AWS or Azure account. The leake
 
 **`cloud_access_key.txt` and `iam_risk.txt` are not created for you.** You must write them.
 
-**What you do.** Inspect `cloud_lab/`. Save the access key id as `cloud_access_key.txt`. In `iam_risk.txt`, quote the policy `Action` that is a wildcard (`*`). Include the word `Action` and `*`.
+**What you do.**
+
+1. Inspect `cloud_lab/` (the env file and the policy JSON).
+2. Find the access key id and save **only that value** as `cloud_access_key.txt`.
+3. In `iam_risk.txt`, quote the policy `Action` that is a wildcard (`*`). Include the word `Action` and `*`.
+
+Example against another leaked folder (adapt paths and the value you found):
+
+```sh
+grep ACCESS_KEY_ID example_lab/deploy.env
+# find the access key line in a committed env file
+
+echo "PASTE_KEY_HERE" > access_key.txt
+# save only the key id you found
+
+echo '"Action": "*"' > policy_risk.txt
+# record the wildcard Action from the IAM policy
+```
 
 **Deliverables:**
 
 - `cloud_access_key.txt` and `iam_risk.txt` at the repository root, created by you.
-- Two to three sentences in `yourAnswers.md` on why secrets belong in a vault (not git) and why `Action: *` on `Resource: *` is dangerous.
+
+**Optional bonus:** Two to three sentences in `yourAnswers.md` on why secrets belong in a vault (not git) and why `Action: *` on `Resource: *` is dangerous.
 
 **Check:** `bash scripts/grade_task12_iam.sh`
 
@@ -491,12 +639,19 @@ Tool reference: [AWS IAM security best practices](https://docs.aws.amazon.com/IA
 
 ## Submission
 
-Complete every section of `yourAnswers.md`, then commit and push **before** you stop the Codespace:
+Commit and push the practical task files **before** you stop the Codespace:
 
 ```sh
 git add .
+# stage your lab files
+
 git commit -m "Complete lab tasks and answers"
+# save a local commit
+
 git push
+# upload the commit to GitHub
 ```
 
-Confirm these files appear on GitHub: `yourAnswers.md`, screenshots, `nmap_scan.txt`, `sniff_capture.log`, `sniff_flag.txt`, `cracked_hash.txt`, `hydra_ssh.txt`, `dos_report.json`, `session_capture.log`, `session_hijack_flag.txt`, `web_recon_flag.txt`, `sqli_extracted_hash.txt`, `sqli_cracked_password.txt`, `crypto_b64_flag.txt`, `crypto_md5.txt`, `bearer_flag.txt`, `idor_flag.txt`, `cloud_access_key.txt`, and `iam_risk.txt`.
+Required on GitHub: `nmap_scan.txt`, `sniff_capture.log`, `sniff_flag.txt`, `cracked_hash.txt`, `hydra_ssh.txt`, `dos_report.json`, `session_capture.log`, `session_hijack_flag.txt`, `web_recon_flag.txt`, `sqli_extracted_hash.txt`, `sqli_cracked_password.txt`, `crypto_b64_flag.txt`, `crypto_md5.txt`, `bearer_flag.txt`, `idor_flag.txt`, `cloud_access_key.txt`, and `iam_risk.txt`.
+
+Optional (3-point bonus): an updated `yourAnswers.md` plus images in `screenshots/`.

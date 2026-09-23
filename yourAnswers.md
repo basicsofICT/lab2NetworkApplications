@@ -1,14 +1,16 @@
-# Lab 2: Scanning, Exploitation, and Web Attacks Answers
+# Lab 2 optional write-up (3 bonus points)
 
-Complete every section. Embed screenshots from a `screenshots/` folder, for example:
+This file is **optional**. Completing it is worth a **3-point bonus**. You can skip it and still earn the full **25** for the practical task files.
 
-`![Description](screenshots/task1.png)`
+If you do the bonus, write two to three sentences for each task. Where a screenshot is listed, take it, save it in `screenshots/`, and embed it here. Example:
+
+```md
+![tcpdump capture showing the token](screenshots/task2.png)
+```
 
 ---
 
-## 1. Network scanning and enumeration (2 pts)
-
-**Files:** `nmap_scan.txt` is not generated automatically. Save Nmap output with `-oN`.
+## 1. Network scanning and enumeration (optional)
 
 **Open ports:** List each open TCP port and the lab service that uses it.
 
@@ -16,98 +18,96 @@ Complete every section. Embed screenshots from a `screenshots/` folder, for exam
 
 ---
 
-## 2. Packet sniffing (2 pts)
+## 2. Packet sniffing (optional)
 
 **Screenshot:** tcpdump output showing the confidential token in transit.
 
-**Files:** `sniff_capture.log` and `sniff_flag.txt` are not generated automatically. Save the capture and extract the flag yourself.
+```md
+![tcpdump capture showing the token](screenshots/task2.png)
+```
 
 **Explanation:** Why does plaintext HTTP expose secrets to anyone who can observe the path?
 
 ---
 
-## 3. Hash cracking with John the Ripper (2 pts)
-
-**Files:** `wordlist.txt` is provided. You must create `cracked_hash.txt` yourself from `john --show` (it is not generated automatically).
+## 3. Hash cracking with John the Ripper (optional)
 
 **Screenshot:** John showing the cracked `username:password` line.
+
+```md
+![John showing the cracked username:password](screenshots/task3.png)
+```
 
 **Explanation:** What does the `$6$` prefix in `hash.txt` mean, and why can a short wordlist still recover a weak password?
 
 ---
 
-## 4. SSH dictionary attack with Hydra (2 pts)
-
-**Files:** `users.txt` and `passwords.txt` are provided. You must create `hydra_ssh.txt` yourself by saving Hydra’s terminal output (it is not generated automatically).
+## 4. SSH dictionary attack with Hydra (optional)
 
 **Screenshot:** Hydra output showing the valid login and password.
+
+```md
+![Hydra showing the valid SSH login](screenshots/task4.png)
+```
 
 **Explanation:** How does this *online* Hydra attack differ from the *offline* John crack in Task 3 (logs, lockouts, speed, need for a live service)?
 
 ---
 
-## 5. Denial-of-service simulation (2 pts)
-
-**Files:** `dos_report.json` is not generated automatically. Save the `/stats` JSON yourself after the flood.
+## 5. Denial-of-service simulation (optional)
 
 **Screenshot:** `ab` output.
+
+```md
+![ApacheBench ab output](screenshots/task5.png)
+```
 
 **Explanation:** How does this HTTP flood relate to SYN or ICMP floods, and why is a real DoS harder to stop?
 
 ---
 
-## 6. Session hijacking via cookie replay (3 pts)
-
-**Files:** `session_capture.log` and `session_hijack_flag.txt` are not generated automatically. Save the capture and the replay response yourself.
+## 6. Session hijacking via cookie replay (optional)
 
 **Explanation:** How would HTTPS and short-lived session tokens prevent this attack?
 
 ---
 
-## 7. Web server reconnaissance (2 pts)
+## 7. Web server reconnaissance (optional)
 
 **Screenshot:** Nikto or Dirb output showing the discovered directory.
 
-**Files:** `web_recon_flag.txt` is not generated automatically. Save the flag after you find the hidden directory.
+```md
+![Nikto or Dirb showing the hidden directory](screenshots/task7.png)
+```
 
 **Explanation:** Why is an unlinked directory still a security risk?
 
 ---
 
-## 8. SQL injection and credential cracking (3 pts)
-
-**Files:** `sqli_extracted_hash.txt` and `sqli_cracked_password.txt` are not generated automatically. Write them after you dump and crack the hash.
+## 8. SQL injection and credential cracking (optional)
 
 **Explanation:** Describe one countermeasure that would prevent this SQL injection.
 
 ---
 
-## 9. Cryptography: encoding and hashing (2 pts)
-
-**Files:** `cipher_b64.txt` and `md5_hash.txt` are provided after setup. You must create `crypto_b64_flag.txt` and `crypto_md5.txt` yourself.
+## 9. Cryptography: encoding and hashing (optional)
 
 **Explanation:** Why is Base64 encoding, not encryption? Why is unsalted MD5 a weak password hash?
 
 ---
 
-## 10. Stolen Bearer token replay (2 pts)
-
-**Files:** `bearer_flag.txt` is not generated automatically. Save the `/api/me` response after you replay a token.
+## 10. Stolen Bearer token replay (optional)
 
 **Explanation:** Why is a leaked Bearer token as serious as a leaked password? Name one control that would reduce the impact.
 
 ---
 
-## 11. API IDOR (2 pts)
-
-**Files:** `idor_flag.txt` is not generated automatically. Save the other user’s API response yourself.
+## 11. API IDOR (optional)
 
 **Explanation:** Why must an API check authorization for each object id, not only that the client called an API?
 
 ---
 
-## 12. Cloud IAM misconfiguration (1 pt)
-
-**Files:** `cloud_lab/` is provided. You must create `cloud_access_key.txt` and `iam_risk.txt` yourself.
+## 12. Cloud IAM misconfiguration (optional)
 
 **Explanation:** Why should cloud keys not live in git, and why is `Action: *` on `Resource: *` dangerous?
